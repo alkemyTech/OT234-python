@@ -26,3 +26,4 @@ with DAG(
 
     UCin >> tarea_ejemplo_1
     UBAi >> tarea_ejemplo_2
+    
