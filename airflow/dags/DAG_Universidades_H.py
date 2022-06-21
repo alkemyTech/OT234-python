@@ -1,6 +1,8 @@
 from datetime import timedelta, datetime
-from airflow import DAG, providers_manager
+from airflow import DAG
 from airflow.operators.empty import EmptyOperator
+import logging
+import sys
 
 """
 The following are possible operators to be used for working with Python scripts, PostgreSQL and Amazon S3:
@@ -10,6 +12,21 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.providers.amazon.aws.operators.s3 import S3CreateBucketOperator, S3CreateObjectOperator
 
 """
+
+#############################
+# Setting up logging tool
+logger = logging.getLogger("LOG-Universidades_H")
+logger.setLevel(logging.INFO)
+file_handler = logging.FileHandler("Universidades_H.log")
+stream_handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter("[%(asctime)s] %(name)s: %(message)s", datefmt='%m/%d/%Y')
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
+#############################
+
+logger.info("Iniciando DAG...")
 
 with DAG(
     "DAG_Universidades_H",       #DAG Name
