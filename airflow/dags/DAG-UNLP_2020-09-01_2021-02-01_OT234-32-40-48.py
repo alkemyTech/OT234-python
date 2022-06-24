@@ -45,7 +45,6 @@ with DAG(
     max_active_runs=3,
     schedule_interval='@daily',
     default_args=default_args,
-    template_searchpath='/Users/imachado/Documentos/Desarrollo/Alkemy/OT234-python/airflow/include',
     catchup=False
     ) as dag:
         
