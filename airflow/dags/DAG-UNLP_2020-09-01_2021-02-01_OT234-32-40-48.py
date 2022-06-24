@@ -1,10 +1,17 @@
-from airflow import DAG
 from datetime import datetime, timedelta
+from airflow import DAG
 from airflow.operators.dummy import DummyOperator
-from airflow.hooks.postgres_hook import PostgresHook
 from airflow.operators.python import PythonOperator
+from airflow.hooks.postgres_hook import PostgresHook
 import pandas as pd
-import logging
+import logging, os, sys
+
+try: 
+    import transform_functions as tf
+except ModuleNotFoundError:
+    sys.path.append(os.path.join('airflow/files/plugins/utils'))
+    import transform_functions as tf
+
 # from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 # Logging configuration
@@ -33,7 +40,7 @@ PROCESSED_DATA_PATH = 'airflow/files/dataset/'
 
 # Functions called at the PythonOperators
 def extract_from_db():
-    '''
+    """
     This function connects to Postgres DB setted up as CONN_ID and runs the query from SQL_PATH over the TABLE.
     It saves data extracted in RAW_DATA_PATH as raw_data.csv.
     The values used are:
@@ -41,7 +48,7 @@ def extract_from_db():
         TABLE = 'training'
         SQL_PATH = 'airflow/include/'
         RAW_DATA_PATH = 'airflow/files/dataset/'
-    '''
+    """
     # Reads query in sql file
     with open(SQL_PATH + 'UNLP_2020-09-01_2021-02-01_OT234-16.sql', 'r') as file:
         sql = file.read()
@@ -55,16 +62,15 @@ def extract_from_db():
     pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UNLP_raw_data.csv')
 
 def transform_data_extrated():
-    '''
+    """
     This function transforms the data extracted.
     It saves data processed in PROCESSED_DATA_PATH as data.csv.
     The values used are:
         PROCESSED_DATA_PATH = 'airflow/files/dataset/'
-    '''
+    """
     raw_data = pd.read_csv(RAW_DATA_PATH + 'UNLP_raw_data.csv', index_col='Unnamed: 0')
-    pass
-    data = raw_data
-    data.to_csv(PROCESSED_DATA_PATH + 'UNLP_dataset.csv')
+    dataset = tf.transform_OT234_72(raw_data=raw_data)
+    dataset.to_csv(PROCESSED_DATA_PATH + 'UNLP_dataset.csv')
 
 # Default DAG args
 default_args = {
