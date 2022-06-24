@@ -29,6 +29,7 @@ CONN_ID = 'alkemy_db'
 TABLE = 'training'
 SQL_PATH = '/Users/imachado/Documentos/Desarrollo/Alkemy/OT234-python/airflow/include/'
 RAW_DATA_PATH = 'airflow/dump_csv/'
+PROCESSED_DATA_PATH = 'airflow/processed_csv/'
 
 # Functions called at the PythonOperators
 def extract_from_db():
@@ -52,6 +53,18 @@ def extract_from_db():
     conn = pg_hook.get_conn()
     # Runs query and saves data
     pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv')
+
+def transform_data_extrated():
+    '''
+    This function transforms the data extracted.
+    It saves data processed in PROCESSED_DATA_PATH as data.csv.
+    The values used are:
+        PROCESSED_DATA_PATH = 'airflow/processed_csv/'
+    '''
+    raw_data = pd.read_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv', index_col='Unnamed: 0')
+    pass
+    data = raw_data
+    data.to_csv(PROCESSED_DATA_PATH + 'UAIn_data.csv')
 
 # Default DAG args
 default_args = {
@@ -79,10 +92,9 @@ with DAG(
             python_callable=extract_from_db,
             )
         
-        transform_data = DummyOperator(
-            # PythonOperator
-            # We could process data with pandas to transform them.
-            task_id='transform_data'
+        transform_data = PythonOperator(
+            task_id='transform_data',
+            python_callable=transform_data_extrated
             )
 
         load_data = DummyOperator(
