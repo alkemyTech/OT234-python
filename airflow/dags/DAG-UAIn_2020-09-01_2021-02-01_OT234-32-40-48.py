@@ -17,11 +17,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
-<<<<<<< HEAD
-fh = logging.FileHandler('airflow/logs/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
-=======
-fh = logging.FileHandler('airflow/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
->>>>>>> OT234-32-40-48
+fh = logging.FileHandler('airflow/files/logs/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
@@ -31,9 +27,9 @@ logger.addHandler(fh)
 # Contstant variables 
 CONN_ID = 'alkemy_db'
 TABLE = 'training'
-SQL_PATH = '/Users/imachado/Documentos/Desarrollo/Alkemy/OT234-python/airflow/include/'
-RAW_DATA_PATH = 'airflow/dump_csv/'
-PROCESSED_DATA_PATH = 'airflow/processed_csv/'
+SQL_PATH = 'airflow/include/'
+RAW_DATA_PATH = 'airflow/files/dump_csv/'
+PROCESSED_DATA_PATH = 'airflow/files/dataset/'
 
 # Functions called at the PythonOperators
 def extract_from_db():
@@ -43,7 +39,7 @@ def extract_from_db():
     The values used are:
         CONN_ID = 'alkemy_db'
         TABLE = 'training'
-        SQL_PATH = '/Users/imachado/Documentos/Desarrollo/Alkemy/OT234-python/airflow/include/'
+        SQL_PATH = 'airflow/include/'
         RAW_DATA_PATH = 'airflow/dump_csv/'
     '''
     # Reads query in sql file
@@ -63,12 +59,12 @@ def transform_data_extrated():
     This function transforms the data extracted.
     It saves data processed in PROCESSED_DATA_PATH as data.csv.
     The values used are:
-        PROCESSED_DATA_PATH = 'airflow/processed_csv/'
+        PROCESSED_DATA_PATH = 'airflow/files/dataset/'
     '''
     raw_data = pd.read_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv', index_col='Unnamed: 0')
     pass
     data = raw_data
-    data.to_csv(PROCESSED_DATA_PATH + 'UAIn_data.csv')
+    data.to_csv(PROCESSED_DATA_PATH + 'UAIn_dataset.csv')
 
 # Default DAG args
 default_args = {
@@ -87,10 +83,6 @@ with DAG(
     max_active_runs=3,
     schedule_interval='@daily',
     default_args=default_args,
-<<<<<<< HEAD
-    template_searchpath=SQL_PATH,
-=======
->>>>>>> OT234-32-40-48
     catchup=False
     ) as dag:
         
