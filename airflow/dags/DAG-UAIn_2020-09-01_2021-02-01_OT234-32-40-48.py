@@ -17,7 +17,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
-fh = logging.FileHandler('airflow/files/logs/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
+fh = logging.FileHandler('airflow/files/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
@@ -28,8 +28,8 @@ logger.addHandler(fh)
 CONN_ID = 'alkemy_db'
 TABLE = 'training'
 SQL_PATH = 'airflow/include/'
-RAW_DATA_PATH = 'airflow/files/dump_csv/'
-PROCESSED_DATA_PATH = 'airflow/files/dataset/'
+RAW_DATA_PATH = 'airflow/files/'
+PROCESSED_DATA_PATH = 'airflow/datasets/'
 
 # Functions called at the PythonOperators
 def extract_from_db():
@@ -40,7 +40,7 @@ def extract_from_db():
         CONN_ID = 'alkemy_db'
         TABLE = 'training'
         SQL_PATH = 'airflow/include/'
-        RAW_DATA_PATH = 'airflow/dump_csv/'
+        RAW_DATA_PATH = 'airflow/datasets/'
     '''
     # Reads query in sql file
     with open(SQL_PATH + 'UAIn_2020-09-01_2021-02-01_OT234-16.sql', 'r') as file:
@@ -59,7 +59,7 @@ def transform_data_extrated():
     This function transforms the data extracted.
     It saves data processed in PROCESSED_DATA_PATH as data.csv.
     The values used are:
-        PROCESSED_DATA_PATH = 'airflow/files/dataset/'
+        PROCESSED_DATA_PATH = 'airflow/datasets/'
     '''
     raw_data = pd.read_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv', index_col='Unnamed: 0')
     pass
