@@ -21,7 +21,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
-fh = logging.FileHandler('DAG-UAIn_2020-09-01_2021-02-01_OT234-16.log')
+fh = logging.FileHandler('DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
@@ -40,12 +40,12 @@ default_args = {
 
 with DAG(
     # DAG Universidad Abierta Interamericana
-    dag_id='DAG-UAIn_2020-09-01_2021-02-01_OT234-16',
+    dag_id='DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48',
     start_date=datetime(2022, 6, 18),
     max_active_runs=3,
     schedule_interval='@daily',
     default_args=default_args,
-    template_searchpath='/Users/imachado/Documentos/Desarrollo/Alkemy/OT234-python/include',
+    template_searchpath='/Users/imachado/Documentos/Desarrollo/Alkemy/OT234-python/airflow/include',
     catchup=False
     ) as dag:
         
@@ -62,7 +62,7 @@ with DAG(
             # 2) PythonOperator with PostgresHook'
             # Using the PythonOperator to run a custom function that uses PostgresHook to connect to postgres DB and run 
             # the DAG-UAIn_2020-09-01_2021-02-01_OT234-16.sql found inthe INCLUDE directory.
-            # with open('/.../OT234-python/include/DAG-UAIn_2020-09-01_2021-02-01_OT234-16.sql', 'r') as file:
+            # with open('/.../OT234-python/airflow/include/DAG-UAIn_2020-09-01_2021-02-01_OT234-16.sql', 'r') as file:
             #        query = file.read()
             # The connection used is setted at the Airflow UI in Admins/Connections and then called by id.
             # When the connection is made we could execute the query with pd.read_sql function to return a data frame with the results.
