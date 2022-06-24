@@ -21,7 +21,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
-fh = logging.FileHandler('DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
+fh = logging.FileHandler('airflow/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
@@ -45,7 +45,6 @@ with DAG(
     max_active_runs=3,
     schedule_interval='@daily',
     default_args=default_args,
-    template_searchpath='/Users/imachado/Documentos/Desarrollo/Alkemy/OT234-python/airflow/include',
     catchup=False
     ) as dag:
         
