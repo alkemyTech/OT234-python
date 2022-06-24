@@ -17,7 +17,11 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
+<<<<<<< HEAD
 fh = logging.FileHandler('airflow/logs/DAG-UNLP_2020-09-01_2021-02-01_OT234-32-40-48.log')
+=======
+fh = logging.FileHandler('airflow/DAG-UNLP_2020-09-01_2021-02-01_OT234-32-40-48.log')
+>>>>>>> OT234-32-40-48
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
@@ -83,7 +87,10 @@ with DAG(
     max_active_runs=3,
     schedule_interval='@daily',
     default_args=default_args,
+<<<<<<< HEAD
     template_searchpath=SQL_PATH,
+=======
+>>>>>>> OT234-32-40-48
     catchup=False
     ) as dag:
         
