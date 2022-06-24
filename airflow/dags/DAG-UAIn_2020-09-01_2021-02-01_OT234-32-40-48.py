@@ -50,21 +50,15 @@ def extract_from_db():
         postgres_conn_id=CONN_ID,
         schema=TABLE
     )
-    conn = pg_hook.get_conn()
+    try:
+        conn = pg_hook.get_conn()
+        logger.debug(f'Connection to the DB using {CONN_ID} was succesfully.')
+    except:
+        logger.error(f'{CONN_ID} did not work to connect to the DB.')
+        return
     # Runs query and saves data
     pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv')
-
-def transform_data_extrated():
-    '''
-    This function transforms the data extracted.
-    It saves data processed in PROCESSED_DATA_PATH as data.csv.
-    The values used are:
-        PROCESSED_DATA_PATH = 'airflow/datasets/'
-    '''
-    raw_data = pd.read_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv', index_col='Unnamed: 0')
-    pass
-    data = raw_data
-    data.to_csv(PROCESSED_DATA_PATH + 'UAIn_dataset.csv')
+    logger.debug(f'Finished data extraction task.')
 
 # Default DAG args
 default_args = {
@@ -91,9 +85,10 @@ with DAG(
             python_callable=extract_from_db,
             )
         
-        transform_data = PythonOperator(
-            task_id='transform_data',
-            python_callable=transform_data_extrated
+        transform_data = DummyOperator(
+            # PythonOperator
+            # We could process data with pandas to transform them.
+            task_id='transform_data'
             )
 
         load_data = DummyOperator(
