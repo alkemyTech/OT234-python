@@ -1,15 +1,23 @@
-SELECT
-    university,
-    career,
-    inscription_date,
-    first_name,
-    last_name,
-    gender,
-    age,
-    postal_code,
-    location,
-    email
+/* Query Universidad de Palermo */
+
+/* Required fields to extract through postprocessing:  university, career, inscription_date,
+ first_name, last_name, gender, age, postal_code, location, email*/
+
+SELECT 
+	universidad,
+    careers,
+	TO_DATE(fecha_de_inscripcion,'DD/MON/YY') as fecha_de_inscripcion,
+    names, 
+    sexo,   
+    birth_dates, 
+    direcciones, 
+	codigo_postal
+    correos_electronicos
+    
 FROM
-   table_name; /* CORREGIR NOMBRE DE TABLA UNA VEZ RECUPERADO ACCESO A DB */
-WHERE 
-    inscription_date BETWEEN 01/9/2020 AND 01/02/2021
+   palermo_tres_de_febrero
+   
+WHERE
+	universidad = '_universidad_de_palermo' AND
+	TO_DATE(fecha_de_inscripcion,'DD/MON/YY') BETWEEN '2020/09/01' AND '2021/02/01'
+	
