@@ -7,6 +7,7 @@ import pandas as pd
 import logging
 # from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
+
 # Logging configuration
 # create logger
 logger = logging.getLogger('DAG_logger')
@@ -18,6 +19,7 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
 fh = logging.FileHandler('airflow/files/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
+
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
@@ -83,6 +85,7 @@ with DAG(
         extract_data = PythonOperator(
             task_id='extract_data',
             python_callable=extract_from_db,
+
             )
         
         transform_data = DummyOperator(
