@@ -1,5 +1,4 @@
 /* Query Universidad Nacional de Jujuy */
-
 /* Required fields to extract through postprocessing:  university, career, inscription_date,
  first_name, last_name, gender, age, postal_code, location, email*/
 
