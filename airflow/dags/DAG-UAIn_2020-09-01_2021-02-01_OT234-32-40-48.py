@@ -1,15 +1,12 @@
 from airflow import DAG
 from datetime import datetime, timedelta
 from airflow.operators.dummy import DummyOperator
+from airflow.hooks.postgres_hook import PostgresHook
+from airflow.operators.python import PythonOperator
+import pandas as pd
 import logging
-
-# Imports that we would make if we should work with real tasks
-
 # from airflow.providers.amazon.aws.hooks.s3 import S3Hook
-# from airflow.operators.postgres_operator import PostgresOperator
-# from airflow.operators.python import PythonOperator
-# from airflow.hooks.postgres_hook import PostgresHook
-# import pandas as pd
+
 
 # Logging configuration
 # create logger
@@ -21,12 +18,49 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
-fh = logging.FileHandler('airflow/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
+fh = logging.FileHandler('airflow/files/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
+
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
 logger.addHandler(ch)
 logger.addHandler(fh)
+
+# Contstant variables 
+CONN_ID = 'alkemy_db'
+TABLE = 'training'
+SQL_PATH = 'airflow/include/'
+RAW_DATA_PATH = 'airflow/files/'
+PROCESSED_DATA_PATH = 'airflow/datasets/'
+
+# Functions called at the PythonOperators
+def extract_from_db():
+    '''
+    This function connects to Postgres DB setted up as CONN_ID and runs the query from SQL_PATH over the TABLE.
+    It saves data extracted in RAW_DATA_PATH as raw_data.csv.
+    The values used are:
+        CONN_ID = 'alkemy_db'
+        TABLE = 'training'
+        SQL_PATH = 'airflow/include/'
+        RAW_DATA_PATH = 'airflow/datasets/'
+    '''
+    # Reads query in sql file
+    with open(SQL_PATH + 'UAIn_2020-09-01_2021-02-01_OT234-16.sql', 'r') as file:
+        sql = file.read()
+    # Connects to Postgres DB
+    pg_hook = PostgresHook(
+        postgres_conn_id=CONN_ID,
+        schema=TABLE
+    )
+    try:
+        conn = pg_hook.get_conn()
+        logger.debug(f'Connection to the DB using {CONN_ID} was succesfully.')
+    except:
+        logger.error(f'{CONN_ID} did not work to connect to the DB.')
+        return
+    # Runs query and saves data
+    pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv')
+    logger.debug(f'Finished data extraction task.')
 
 # Default DAG args
 default_args = {
@@ -48,24 +82,10 @@ with DAG(
     catchup=False
     ) as dag:
         
-        extract_data = DummyOperator(
-            # extract_data
-            # We could do this task by two differents ways:
+        extract_data = PythonOperator(
+            task_id='extract_data',
+            python_callable=extract_from_db,
 
-            # 1) PostgresOperator
-            # Using PostgresOperator to connect to postgres DB and run the file.sql found in the INCLUDE directory.
-            # The connection used is setted at the Airflow UI in Admins/Connections and then called by id. 
-            # If we use this operator we have to push the data to the next task setting True next parameter:
-            # xcom_push=True
-        
-            # 2) PythonOperator with PostgresHook'
-            # Using the PythonOperator to run a custom function that uses PostgresHook to connect to postgres DB and run 
-            # the DAG-UAIn_2020-09-01_2021-02-01_OT234-16.sql found inthe INCLUDE directory.
-            # with open('/.../OT234-python/airflow/include/DAG-UAIn_2020-09-01_2021-02-01_OT234-16.sql', 'r') as file:
-            #        query = file.read()
-            # The connection used is setted at the Airflow UI in Admins/Connections and then called by id.
-            # When the connection is made we could execute the query with pd.read_sql function to return a data frame with the results.
-            task_id='extract_data'
             )
         
         transform_data = DummyOperator(
