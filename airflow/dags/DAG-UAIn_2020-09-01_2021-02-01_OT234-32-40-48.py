@@ -17,7 +17,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
-fh = logging.FileHandler('airflow/files/logs/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
+fh = logging.FileHandler('airflow/files/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
@@ -28,8 +28,8 @@ logger.addHandler(fh)
 CONN_ID = 'alkemy_db'
 TABLE = 'training'
 SQL_PATH = 'airflow/include/'
-RAW_DATA_PATH = 'airflow/files/dump_csv/'
-PROCESSED_DATA_PATH = 'airflow/files/dataset/'
+RAW_DATA_PATH = 'airflow/files/'
+PROCESSED_DATA_PATH = 'airflow/datasets/'
 
 # Functions called at the PythonOperators
 def extract_from_db():
@@ -40,7 +40,7 @@ def extract_from_db():
         CONN_ID = 'alkemy_db'
         TABLE = 'training'
         SQL_PATH = 'airflow/include/'
-        RAW_DATA_PATH = 'airflow/dump_csv/'
+        RAW_DATA_PATH = 'airflow/datasets/'
     '''
     # Reads query in sql file
     with open(SQL_PATH + 'UAIn_2020-09-01_2021-02-01_OT234-16.sql', 'r') as file:
@@ -50,21 +50,15 @@ def extract_from_db():
         postgres_conn_id=CONN_ID,
         schema=TABLE
     )
-    conn = pg_hook.get_conn()
+    try:
+        conn = pg_hook.get_conn()
+        logger.debug(f'Connection to the DB using {CONN_ID} was succesfully.')
+    except:
+        logger.error(f'{CONN_ID} did not work to connect to the DB.')
+        return
     # Runs query and saves data
     pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv')
-
-def transform_data_extrated():
-    '''
-    This function transforms the data extracted.
-    It saves data processed in PROCESSED_DATA_PATH as data.csv.
-    The values used are:
-        PROCESSED_DATA_PATH = 'airflow/files/dataset/'
-    '''
-    raw_data = pd.read_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv', index_col='Unnamed: 0')
-    pass
-    data = raw_data
-    data.to_csv(PROCESSED_DATA_PATH + 'UAIn_dataset.csv')
+    logger.debug(f'Finished data extraction task.')
 
 # Default DAG args
 default_args = {
@@ -91,9 +85,10 @@ with DAG(
             python_callable=extract_from_db,
             )
         
-        transform_data = PythonOperator(
-            task_id='transform_data',
-            python_callable=transform_data_extrated
+        transform_data = DummyOperator(
+            # PythonOperator
+            # We could process data with pandas to transform them.
+            task_id='transform_data'
             )
 
         load_data = DummyOperator(
