@@ -48,7 +48,6 @@ with DAG(
         database="training",
         output_dir= dataset_dir + 'UFLo_2020-09-01_2021-02-01.csv'
         #output_dir= dataset_dir + 'UFLo_2020-09-01_2021-02-01-{}.csv'.format(current_time)
-        )
 
     UFLo_transform = PythonOperator(
         task_id='UFLo_transform',
@@ -59,6 +58,7 @@ with DAG(
         task_id='UFLo_amazon',
         )
 
+
     UNVM_query = DataSourceToCsvOperator(
         task_id='UNVM_query',
         sql=sqlFileToQuery(sql_dir + "UTNa_2020-09-01_2021-02-01_OT234-12.sql"),
@@ -66,7 +66,7 @@ with DAG(
         database="training",
         output_dir= dataset_dir + 'UTNa_2020-09-01_2021-02-01.csv'
         # output_dir= dataset_dir + 'UTNa_2020-09-01_2021-02-01-{}.csv'.format(current_time)
-        )
+
 
     UNVM_transform = PythonOperator(
         task_id='UNVM_transform',
@@ -77,9 +77,11 @@ with DAG(
         task_id='UNVM_amazon',
         )
 
+
 UFLo_query >> UFLo_transform >> UFLo_amazon
 
 UNVM_query >> UNVM_transform >> UNVM_amazon
+
 
     
    
