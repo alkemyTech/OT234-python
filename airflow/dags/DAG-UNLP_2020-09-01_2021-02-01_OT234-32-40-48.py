@@ -60,7 +60,7 @@ def extract_from_db():
     pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UNLP_raw_data.csv')
     logger.debug(f'Finished data extraction task.')
 
-def transform_data_extrated():
+def transform_extrated_data():
     """
     This function transforms the extracted data.
     It saves data processed in PROCESSED_DATA_PATH as data.csv.
@@ -77,6 +77,7 @@ def transform_data_extrated():
         logger.debug(f'Dataset succesfully saved in {PROCESSED_DATA_PATH}.')
     except:
         logger.error('There was an error saving the dataset.')
+        return
 
 # Default DAG args
 default_args = {
@@ -105,7 +106,7 @@ with DAG(
         
         transform_data = PythonOperator(
             task_id='transform_data',
-            python_callable=transform_data_extrated
+            python_callable=transform_extrated_data
             )
 
         load_data = DummyOperator(
