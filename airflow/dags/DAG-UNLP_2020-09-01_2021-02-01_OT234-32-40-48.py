@@ -1,17 +1,10 @@
-from datetime import datetime, timedelta
 from airflow import DAG
+from datetime import datetime, timedelta
 from airflow.operators.dummy import DummyOperator
-from airflow.operators.python import PythonOperator
 from airflow.hooks.postgres_hook import PostgresHook
+from airflow.operators.python import PythonOperator
 import pandas as pd
-import logging, os, sys
-
-try: 
-    import transform_functions as tf
-except ModuleNotFoundError:
-    sys.path.append(os.path.join('airflow/files/plugins/utils'))
-    import transform_functions as tf
-
+import logging
 # from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 # Logging configuration
@@ -63,9 +56,9 @@ def extract_from_db():
     except:
         logger.error(f'{CONN_ID} did not work to connect to the DB.')
         return
-    conn = pg_hook.get_conn()
     # Runs query and saves data
     pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UNLP_raw_data.csv')
+    logger.debug(f'Finished data extraction task.')
 
 def transform_data_extrated():
     """
@@ -75,7 +68,7 @@ def transform_data_extrated():
         PROCESSED_DATA_PATH = 'airflow/files/dataset/'
     """
     raw_data = pd.read_csv(RAW_DATA_PATH + 'UNLP_raw_data.csv', index_col='Unnamed: 0')
-    dataset = tf.transform_OT234_72(raw_data=raw_data)
+    dataset = raw_data
     dataset.to_csv(PROCESSED_DATA_PATH + 'UNLP_dataset.csv')
 
 # Default DAG args
@@ -117,3 +110,4 @@ with DAG(
             )
         
         extract_data >> transform_data >> load_data
+        

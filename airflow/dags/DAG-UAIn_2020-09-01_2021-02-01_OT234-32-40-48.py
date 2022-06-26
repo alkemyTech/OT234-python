@@ -60,6 +60,17 @@ def extract_from_db():
     pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv')
     logger.debug(f'Finished data extraction task.')
 
+def transform_data_extrated():
+    """
+    This function transforms the data extracted.
+    It saves data processed in PROCESSED_DATA_PATH as data.csv.
+    The values used are:
+        PROCESSED_DATA_PATH = 'airflow/files/dataset/'
+    """
+    raw_data = pd.read_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv', index_col='Unnamed: 0')
+    dataset = raw_data
+    dataset.to_csv(PROCESSED_DATA_PATH + 'UAIn_dataset.csv')    
+
 # Default DAG args
 default_args = {
     'owner': 'airflow',
@@ -99,3 +110,4 @@ with DAG(
             )
         
         extract_data >> transform_data >> load_data
+        
