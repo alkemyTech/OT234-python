@@ -9,17 +9,17 @@ from datasourcetocsv_operator import DataSourceToCsvOperator
 from datetime import datetime
 
 now = datetime.now()
-current_time = now.strftime("%d:%m:%y")
+current_time = now.strftime("%d/%m:%y")
 
-"""
-A futuro probablemente usaré:
-     un custom operator (datasourcetocsv) --> Extracción desde el servidor y creación de csv
-     un python operator que ejecute diferentes funciones de python --> Transformación de los datasets
-     un python operator que ejecute funciones para amazon cloud --> Subida de archivos a amazon. 
-"""
+dataset_dir = "/home/jvera/gitRepos/OT234-python/airflow/datasets/"
+sql_dir = "/home/jvera/gitRepos/OT234-python/airflow/include/"
 
-query = 'select*from jujuy_utn'
-project_dir = "/home/jvera/gitRepos/OT234-python/airflow/datasets/"
+def sqlFileToQuery(path):
+    query = ''
+    with open(path) as file:
+        for line in file:
+            query += line
+    return query
 
 def dummy():
     return True
@@ -43,10 +43,11 @@ with DAG(
 ) as dag:
     UFLo_query = DataSourceToCsvOperator(
         task_id='UFLO_query',
-        sql=query,
+        sql= sqlFileToQuery(sql_dir + "UNTF_2020-09-01_2021-02-01_OT234-12.sql"),
         postgres_conn_id="postgres_server",
         database="training",
-        output_dir= project_dir + 'UFLo_2020-09-01_2021-02-01.csv'.format(current_time)
+        output_dir= dataset_dir + 'UFLo_2020-09-01_2021-02-01.csv'
+        #output_dir= dataset_dir + 'UFLo_2020-09-01_2021-02-01-{}.csv'.format(current_time)
         )
 
     UFLo_transform = PythonOperator(
@@ -57,13 +58,14 @@ with DAG(
     UFLo_amazon = EmptyOperator(
         task_id='UFLo_amazon',
         )
-        
+
     UNVM_query = DataSourceToCsvOperator(
         task_id='UNVM_query',
-        sql=query,
+        sql=sqlFileToQuery(sql_dir + "UTNa_2020-09-01_2021-02-01_OT234-12.sql"),
         postgres_conn_id="postgres_server",
         database="training",
-        output_dir= project_dir + 'UTNa_2020-09-01_2021-02-01.csv'.format(current_time)
+        output_dir= dataset_dir + 'UTNa_2020-09-01_2021-02-01.csv'
+        # output_dir= dataset_dir + 'UTNa_2020-09-01_2021-02-01-{}.csv'.format(current_time)
         )
 
     UNVM_transform = PythonOperator(
