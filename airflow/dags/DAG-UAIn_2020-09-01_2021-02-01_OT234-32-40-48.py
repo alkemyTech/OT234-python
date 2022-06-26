@@ -62,14 +62,21 @@ def extract_from_db():
 
 def transform_data_extrated():
     """
-    This function transforms the data extracted.
+    This function transforms the extracted data.
     It saves data processed in PROCESSED_DATA_PATH as data.csv.
     The values used are:
         PROCESSED_DATA_PATH = 'airflow/files/dataset/'
     """
     raw_data = pd.read_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv', index_col='Unnamed: 0')
+    pass
+    # TO DO data transformation
+    pass
     dataset = raw_data
-    dataset.to_csv(PROCESSED_DATA_PATH + 'UAIn_dataset.csv')    
+    try: 
+        dataset.to_csv(PROCESSED_DATA_PATH + 'UAIn_dataset.csv')
+        logger.debug(f'Dataset succesfully saved in {PROCESSED_DATA_PATH}.')
+    except:
+        logger.error('There was an error saving the dataset.')
 
 # Default DAG args
 default_args = {
@@ -96,10 +103,9 @@ with DAG(
             python_callable=extract_from_db,
             )
         
-        transform_data = DummyOperator(
-            # PythonOperator
-            # We could process data with pandas to transform them.
-            task_id='transform_data'
+        transform_data = PythonOperator(
+            task_id='transform_data',
+            python_callable=transform_data_extrated
             )
 
         load_data = DummyOperator(
