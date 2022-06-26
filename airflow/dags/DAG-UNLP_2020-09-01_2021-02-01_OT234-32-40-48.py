@@ -33,7 +33,7 @@ PROCESSED_DATA_PATH = 'airflow/datasets/'
 
 # Functions called at the PythonOperators
 def extract_from_db():
-    '''
+    """
     This function connects to Postgres DB setted up as CONN_ID and runs the query from SQL_PATH over the TABLE.
     It saves data extracted in RAW_DATA_PATH as raw_data.csv.
     The values used are:
@@ -41,7 +41,7 @@ def extract_from_db():
         TABLE = 'training'
         SQL_PATH = 'airflow/include/'
         RAW_DATA_PATH = 'airflow/datasets/'
-    '''
+    """
     # Reads query in sql file
     with open(SQL_PATH + 'UNLP_2020-09-01_2021-02-01_OT234-16.sql', 'r') as file:
         sql = file.read()
@@ -56,21 +56,28 @@ def extract_from_db():
     except:
         logger.error(f'{CONN_ID} did not work to connect to the DB.')
         return
-    conn = pg_hook.get_conn()
     # Runs query and saves data
     pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UNLP_raw_data.csv')
+    logger.debug(f'Finished data extraction task.')
 
-def transform_data_extrated():
+def transform_extrated_data():
     """
-    This function transforms the data extracted.
+    This function transforms the extracted data.
     It saves data processed in PROCESSED_DATA_PATH as data.csv.
     The values used are:
         PROCESSED_DATA_PATH = 'airflow/files/dataset/'
     """
     raw_data = pd.read_csv(RAW_DATA_PATH + 'UNLP_raw_data.csv', index_col='Unnamed: 0')
     pass
+    # TO DO data transformation
+    pass
     dataset = raw_data
-    dataset.to_csv(PROCESSED_DATA_PATH + 'UNLP_dataset.csv')
+    try:
+        dataset.to_csv(PROCESSED_DATA_PATH + 'UNLP_dataset.csv')
+        logger.debug(f'Dataset succesfully saved in {PROCESSED_DATA_PATH}.')
+    except:
+        logger.error('There was an error saving the dataset.')
+        return
 
 # Default DAG args
 default_args = {
@@ -99,7 +106,7 @@ with DAG(
         
         transform_data = PythonOperator(
             task_id='transform_data',
-            python_callable=transform_data_extrated
+            python_callable=transform_extrated_data
             )
 
         load_data = DummyOperator(
@@ -110,3 +117,4 @@ with DAG(
             )
         
         extract_data >> transform_data >> load_data
+        
