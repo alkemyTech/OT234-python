@@ -1,17 +1,10 @@
-from datetime import datetime, timedelta
 from airflow import DAG
+from datetime import datetime, timedelta
 from airflow.operators.dummy import DummyOperator
-from airflow.operators.python import PythonOperator
 from airflow.hooks.postgres_hook import PostgresHook
+from airflow.operators.python import PythonOperator
 import pandas as pd
-import logging, os, sys
-
-try: 
-    import transform_functions as tf
-except ModuleNotFoundError:
-    sys.path.append(os.path.join('airflow/files/plugins/utils'))
-    import transform_functions as tf
-
+import logging
 # from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 # Logging configuration
@@ -24,7 +17,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
-fh = logging.FileHandler('airflow/files/logs/DAG-UNLP_2020-09-01_2021-02-01_OT234-32-40-48.log')
+fh = logging.FileHandler('airflow/files/DAG-UNLP_2020-09-01_2021-02-01_OT234-32-40-48.log')
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
@@ -35,20 +28,20 @@ logger.addHandler(fh)
 CONN_ID = 'alkemy_db'
 TABLE = 'training'
 SQL_PATH = 'airflow/include/'
-RAW_DATA_PATH = 'airflow/files/dump_csv/'
-PROCESSED_DATA_PATH = 'airflow/files/dataset/'
+RAW_DATA_PATH = 'airflow/files/'
+PROCESSED_DATA_PATH = 'airflow/datasets/'
 
 # Functions called at the PythonOperators
 def extract_from_db():
-    """
+    '''
     This function connects to Postgres DB setted up as CONN_ID and runs the query from SQL_PATH over the TABLE.
     It saves data extracted in RAW_DATA_PATH as raw_data.csv.
     The values used are:
         CONN_ID = 'alkemy_db'
         TABLE = 'training'
         SQL_PATH = 'airflow/include/'
-        RAW_DATA_PATH = 'airflow/files/dataset/'
-    """
+        RAW_DATA_PATH = 'airflow/datasets/'
+    '''
     # Reads query in sql file
     with open(SQL_PATH + 'UNLP_2020-09-01_2021-02-01_OT234-16.sql', 'r') as file:
         sql = file.read()
@@ -57,6 +50,12 @@ def extract_from_db():
         postgres_conn_id=CONN_ID,
         schema=TABLE
     )
+    try:
+        conn = pg_hook.get_conn()
+        logger.debug(f'Connection to the DB using {CONN_ID} was succesfully.')
+    except:
+        logger.error(f'{CONN_ID} did not work to connect to the DB.')
+        return
     conn = pg_hook.get_conn()
     # Runs query and saves data
     pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UNLP_raw_data.csv')
@@ -69,7 +68,8 @@ def transform_data_extrated():
         PROCESSED_DATA_PATH = 'airflow/files/dataset/'
     """
     raw_data = pd.read_csv(RAW_DATA_PATH + 'UNLP_raw_data.csv', index_col='Unnamed: 0')
-    dataset = tf.transform_OT234_72(raw_data=raw_data)
+    pass
+    dataset = raw_data
     dataset.to_csv(PROCESSED_DATA_PATH + 'UNLP_dataset.csv')
 
 # Default DAG args
