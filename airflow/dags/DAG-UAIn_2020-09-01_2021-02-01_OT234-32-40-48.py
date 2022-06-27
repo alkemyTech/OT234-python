@@ -7,7 +7,6 @@ import pandas as pd
 import logging
 # from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
-
 # Logging configuration
 # create logger
 logger = logging.getLogger('DAG_logger')
@@ -19,7 +18,6 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
 fh = logging.FileHandler('airflow/files/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
-
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
@@ -62,6 +60,25 @@ def extract_from_db():
     pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv')
     logger.debug(f'Finished data extraction task.')
 
+def transform_extrated_data():
+    """
+    This function transforms the extracted data.
+    It saves data processed in PROCESSED_DATA_PATH as data.csv.
+    The values used are:
+        PROCESSED_DATA_PATH = 'airflow/files/dataset/'
+    """
+    raw_data = pd.read_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv', index_col='Unnamed: 0')
+    pass
+    # TO DO data transformation
+    pass
+    dataset = raw_data
+    try: 
+        dataset.to_csv(PROCESSED_DATA_PATH + 'UAIn_dataset.csv')
+        logger.debug(f'Dataset succesfully saved in {PROCESSED_DATA_PATH}.')
+    except:
+        logger.error('There was an error saving the dataset.')
+        return
+
 # Default DAG args
 default_args = {
     'owner': 'airflow',
@@ -85,13 +102,11 @@ with DAG(
         extract_data = PythonOperator(
             task_id='extract_data',
             python_callable=extract_from_db,
-
             )
         
-        transform_data = DummyOperator(
-            # PythonOperator
-            # We could process data with pandas to transform them.
-            task_id='transform_data'
+        transform_data = PythonOperator(
+            task_id='transform_data',
+            python_callable=transform_extrated_data
             )
 
         load_data = DummyOperator(
@@ -102,3 +117,4 @@ with DAG(
             )
         
         extract_data >> transform_data >> load_data
+        
