@@ -1,15 +1,13 @@
 -- UFlo_2020-09-01_2021-02-01_OT234-12.sql
 /*
 COMO: Analista de datos
-QUIERO: Escribir el código de dos consultas SQL, una para cada universidad.
+QUIERO: Escribir el cï¿½digo de dos consultas SQL, una para cada universidad.
 PARA: Obtener los datos de las pesonas anotadas en entre las fechas 01/9/2020 al 01/02/2021 para las siguientes facultades: 
-
 Universidad De Flores
+Universidad Nacional De Villa Marï¿½a
 
-Universidad Nacional De Villa María
-
-Criterios de aceptación: 
-Deben presentar la consulta en un archivo .sql. La consulta debe disponibilizar únicamente la información necesaria para que en un futuro sea procesada y genere los siguientes datos para las fechas indicadas. 
+Criterios de aceptaciï¿½n: 
+Deben presentar la consulta en un archivo .sql. La consulta debe disponibilizar ï¿½nicamente la informaciï¿½n necesaria para que en un futuro sea procesada y genere los siguientes datos para las fechas indicadas. 
 Datos esperados:
 
 university -
@@ -23,7 +21,7 @@ postal_code -
 location -
 email -
 
-Aclaración: Las tablas tienen dos universidades cada una. No hace falta interpretar datos que no parezcan lógicos como fechas de nacimiento y de inscripción fuera del rango de interés. Lo importante es traer toda la información de la base de datos en las fechas especificadas y cada tarea se debe ejecutar 5 veces antes de fallar.*/
+Aclaraciï¿½n: Las tablas tienen dos universidades cada una. No hace falta interpretar datos que no parezcan lï¿½gicos como fechas de nacimiento y de inscripciï¿½n fuera del rango de interï¿½s. Lo importante es traer toda la informaciï¿½n de la base de datos en las fechas especificadas y cada tarea se debe ejecutar 5 veces antes de fallar.*/
 
 SELECT universidad as university,
 	carrera as carrer,
@@ -31,7 +29,6 @@ SELECT universidad as university,
 	SPLIT_PART(name ,' ',1) as first_name,
 	split_part(name, ' ', 2) as last_name,
 	sexo as gender,
-	fecha_nacimiento ,
 	AGE(TO_DATE(fecha_nacimiento , 'yyyy/Mm/dd')) AS age,
 	codigo_postal as postal_code,
 	direccion as location,
@@ -39,5 +36,8 @@ SELECT universidad as university,
 FROM flores_comahue
 where universidad = 'UNIVERSIDAD DE FLORES'
 AND	fecha_de_inscripcion BETWEEN '2020-09-01' AND '2021-02-01'
-order by age asc 
+
+
+
+
 
