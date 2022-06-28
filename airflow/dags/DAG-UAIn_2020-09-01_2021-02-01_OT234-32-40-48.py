@@ -93,7 +93,7 @@ def load_to_s3():
                         bucket_name=BUCKET_NAME,
                         replace=True)
     try:
-        assert s3_hook.get_key('UNLP_dataset.csv',BUCKET_NAME).key == 'UAIn_dataset.csv'
+        assert s3_hook.get_key('UAIn_dataset.csv',BUCKET_NAME).key == 'UAIn_dataset.csv'
         logger.debug('The file was succesfully saved in s3.')
     except AssertionError:
         logger.error("The file couldn't be upload.")
