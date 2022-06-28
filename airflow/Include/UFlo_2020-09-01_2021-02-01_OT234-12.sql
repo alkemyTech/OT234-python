@@ -1,5 +1,6 @@
 -- UFlo_2020-09-01_2021-02-01_OT234-12.sql
-/*COMO: Analista de datos
+/*
+COMO: Analista de datos
 QUIERO: Escribir el código de dos consultas SQL, una para cada universidad.
 PARA: Obtener los datos de las pesonas anotadas en entre las fechas 01/9/2020 al 01/02/2021 para las siguientes facultades: 
 
@@ -30,7 +31,7 @@ SELECT universidad as university,
 	SPLIT_PART(name ,' ',1) as first_name,
 	split_part(name, ' ', 2) as last_name,
 	sexo as gender,
-	fecha_nacimiento as age,
+	fecha_nacimiento ,
 	AGE(TO_DATE(fecha_nacimiento , 'yyyy/Mm/dd')) AS age,
 	codigo_postal as postal_code,
 	direccion as location,
@@ -38,4 +39,5 @@ SELECT universidad as university,
 FROM flores_comahue
 where universidad = 'UNIVERSIDAD DE FLORES'
 AND	fecha_de_inscripcion BETWEEN '2020-09-01' AND '2021-02-01'
+order by age asc 
 

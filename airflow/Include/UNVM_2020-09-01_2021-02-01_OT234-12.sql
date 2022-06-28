@@ -23,3 +23,17 @@ location -
 email -
 
 Aclaración: Las tablas tienen dos universidades cada una. No hace falta interpretar datos que no parezcan lógicos como fechas de nacimiento y de inscripción fuera del rango de interés. Lo importante es traer toda la información de la base de datos en las fechas especificadas y cada tarea se debe ejecutar 5 veces antes de fallar.*/
+select universidad as university,
+	carrera as career,
+	fecha_de_inscripcion as inscription_date,
+	split_part(nombre, ' ', 1) as first_name,
+	split_part(nombre, ' ', 2) as last_name,
+	sexo as gender,
+	AGE(to_date(fecha_nacimiento, 'dd/Mon/yy')) as age
+from salvador_villa_maria svm 
+limit 5
+
+select fecha_nacimiento,
+	to_date(fecha_nacimiento, 'dd/Mon/yy'),
+	age(to_date(fecha_nacimiento, 'dd-Mon-yy'))
+from salvador_villa_maria svm limit 3
