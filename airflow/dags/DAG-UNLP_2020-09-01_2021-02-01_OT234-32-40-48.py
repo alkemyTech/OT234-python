@@ -1,8 +1,8 @@
 from airflow import DAG
 from datetime import datetime, timedelta
-from airflow.operators.dummy import DummyOperator
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.operators.python import PythonOperator
+from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 import pandas as pd
 import logging,os, sys
 try:
@@ -10,8 +10,6 @@ try:
 except ModuleNotFoundError:
     sys.path.append(os.path.join('airflow/plugins/'))
     import data_transformation_functions as tf
-
-# from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 # Logging configuration
 # create logger
@@ -36,6 +34,8 @@ TABLE = 'training'
 SQL_PATH = 'airflow/include/'
 RAW_DATA_PATH = 'airflow/files/'
 PROCESSED_DATA_PATH = 'airflow/datasets/'
+S3_CONN_ID = 's3_alkemi'
+BUCKET_NAME ='cohorte-junio-a192d78b'
 
 # Functions called at the PythonOperators
 def extract_from_db():
@@ -82,6 +82,22 @@ def transform_extrated_data():
         logger.error('There was an error saving the dataset.')
         return
 
+def load_to_s3():
+    """
+    This functions runs a S3Hook to upload the final dataset to S3.
+    """
+    dataset = pd.read_csv('airflow/datasets/UNLP_dataset.csv', index_col='Unnamed: 0')
+    s3_hook = S3Hook(aws_conn_id=S3_CONN_ID)
+    s3_hook.load_string(dataset.to_csv(index=False),
+                        '{0}.csv'.format('UNLP_dataset'),
+                        bucket_name=BUCKET_NAME,
+                        replace=True)
+    try:
+        assert s3_hook.get_key('UNLP_dataset.csv',BUCKET_NAME).key == 'UNLP_dataset.csv'
+        logger.debug('The file was succesfully saved in s3.')
+    except AssertionError:
+        logger.error("The file couldn't be upload.")
+
 # Default DAG args
 default_args = {
     'owner': 'airflow',
@@ -112,11 +128,9 @@ with DAG(
             python_callable=transform_extrated_data
             )
 
-        load_data = DummyOperator(
-            # PythonOperator and S3Hook
-            # We could create a custom function that takes transformed data in previuos task and load to S3 using the S3Hook. 
-            # As we did at the extrac_data task we should set the connection at the Airflow UI in Admins/Connections and then called by id.
-            task_id='load_data'
+        load_data = PythonOperator(
+            task_id='load_data',
+            python_callable=load_to_s3
             )
         
         extract_data >> transform_data >> load_data
