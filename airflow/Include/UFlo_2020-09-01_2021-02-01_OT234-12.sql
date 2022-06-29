@@ -1,5 +1,6 @@
 -- UFlo_2020-09-01_2021-02-01_OT234-12.sql
 /*
+ * NOTA: hay que corregir el campo AGE
 COMO: Analista de datos
 QUIERO: Escribir el c�digo de dos consultas SQL, una para cada universidad.
 PARA: Obtener los datos de las pesonas anotadas en entre las fechas 01/9/2020 al 01/02/2021 para las siguientes facultades: 
@@ -36,8 +37,7 @@ SELECT universidad as university,
 FROM flores_comahue
 where universidad = 'UNIVERSIDAD DE FLORES'
 AND	fecha_de_inscripcion BETWEEN '2020-09-01' AND '2021-02-01'
-
-
-
+limit 10
+--select * from flores_comahue limit 1
 
 
