@@ -44,6 +44,7 @@ select universidad as university,
 	direccion as location,
 	email as email
 from salvador_villa_maria svm 
-where universidad ='UNIVERSIDAD_NACIONAL_DE_VILLA_MARÍA'   
-limit 10
+where universidad ='UNIVERSIDAD_NACIONAL_DE_VILLA_MARÍA'
+AND	fecha_de_inscripcion BETWEEN '2020-09-01' AND '2021-02-01'
+
 

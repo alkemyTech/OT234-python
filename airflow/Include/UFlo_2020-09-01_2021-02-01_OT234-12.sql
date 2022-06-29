@@ -37,7 +37,7 @@ SELECT universidad as university,
 FROM flores_comahue
 where universidad = 'UNIVERSIDAD DE FLORES'
 AND	fecha_de_inscripcion BETWEEN '2020-09-01' AND '2021-02-01'
-limit 10
+
 --select * from flores_comahue limit 1
 
 
