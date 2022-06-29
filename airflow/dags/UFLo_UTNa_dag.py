@@ -131,6 +131,15 @@ with DAG(
         op_kwargs={'input_path': csv_UFLo_dir, 'postal_fix': 'True', 'output_path' : txt_UFLo_dir},
         )
 
+    UFLo_aws_load = PythonOperator(
+        task_id='UFLo_aws_load',
+        python_callable=loadAws,
+        op_kwargs={
+            'bucket': aws_bucket, 
+            'file_path': txt_UFLo_dir,
+        }
+    )
+
     UTNa_query = DataSourceToCsvOperator(
         task_id='UTNa_query',
         sql=sqlFileToQuery(sql_dir + "UTNa_2020-09-01_2021-02-01_OT234-12.sql"),
