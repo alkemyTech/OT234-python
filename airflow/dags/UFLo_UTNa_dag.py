@@ -6,10 +6,11 @@ from airflow.operators.python import PythonOperator
 from datasourcetocsv_operator import DataSourceToCsvOperator
 # ----------------
 
-# Numpy and pandas 
+# Numpy, pandas, csv and boto for aws 
 import pandas as pd
 import csv
 import numpy as np
+import boto3
 # ----------------
 
 # Time Module
@@ -19,6 +20,8 @@ current_time = now.strftime("%d/%m:%y")
 
 # ----------------
 
+
+
 # Global Variables
 
 dataset_dir = "/home/jvera/gitRepos/OT234-python/airflow/datasets/"
@@ -27,6 +30,7 @@ csv_UFLo_dir = "/home/jvera/gitRepos/OT234-python/airflow/datasets/UFLo_2020-09-
 csv_UTNa_dir = "/home/jvera/gitRepos/OT234-python/airflow/datasets/UTNa_2020-09-01_2021-02-01.csv"
 txt_UFLo_dir = "/home/jvera/gitRepos/OT234-python/airflow/files/UFLo_2020-09-01_2021-02-01.txt"
 txt_UTNa_dir = "/home/jvera/gitRepos/OT234-python/airflow/files/UTNa_2020-09-01_2021-02-01.txt"
+aws_bucket = 'cohorte-junio-a192d78b'
 # ----------------
 
 
@@ -67,9 +71,6 @@ def postalCode(df):
 
 def exportToTxt(df,path):
     print(path)
-    print('HOLA')
-    print(df.head())
-    
     np.savetxt(path, df.values, fmt='%s',delimiter=',')
 
 def cleaningPipeline(**kwargs):
@@ -83,9 +84,20 @@ def cleaningPipeline(**kwargs):
     df = BaseProcessing(df)
     if postal_fix == True:
         df = postalCode(df)
-    print('hola')
+    
     exportToTxt(df,output_path)
 
+def loadAws(**kwargs):
+    print('hola')
+    file_path = kwargs['file_path']
+    bucket = kwargs['bucket']
+    file_name = file_path.split('/')[-1]
+    print(file_name)
+    data = open(file_path, 'rb')
+
+
+    s3 = boto3.resource('s3')
+    s3.Bucket(bucket).put_object(Key=file_name, Body=data)
 
 default_args={
     'owner': 'airflow',
@@ -119,6 +131,15 @@ with DAG(
         op_kwargs={'input_path': csv_UFLo_dir, 'postal_fix': 'True', 'output_path' : txt_UFLo_dir},
         )
 
+    UFLo_aws_load = PythonOperator(
+        task_id='UFLo_aws_load',
+        python_callable=loadAws,
+        op_kwargs={
+            'bucket': aws_bucket, 
+            'file_path': txt_UFLo_dir,
+        }
+    )
+
     UTNa_query = DataSourceToCsvOperator(
         task_id='UTNa_query',
         sql=sqlFileToQuery(sql_dir + "UTNa_2020-09-01_2021-02-01_OT234-12.sql"),
@@ -134,9 +155,18 @@ with DAG(
         op_kwargs={'input_path': csv_UTNa_dir, 'postal_fix': 'False','output_path':txt_UTNa_dir},
         )
 
-UFLo_query >> UFLo_transform_to_txt
+    UTNa_aws_load = PythonOperator(
+        task_id='UTNa_aws_load',
+        python_callable=loadAws,
+        op_kwargs={
+            'bucket': aws_bucket, 
+            'file_path': txt_UTNa_dir,
+        }
+    )
 
-UTNa_query >> UTNa_transform_to_txt
+UFLo_query >> UFLo_transform_to_txt >> UTNa_aws_load
+
+UTNa_query >> UTNa_transform_to_txt >> UFLo_aws_load
     
    
     
