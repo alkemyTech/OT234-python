@@ -1,6 +1,6 @@
 /*
 Obtener los datos de las pesonas anotadas en entre las fechas 01/9/2020 al 01/02/2021 para las siguientes facultades:
-- Universidad J. F. Kennedy
+- Universidad J. F. Kennedy 
 */
 
 SELECT  universidades AS university,

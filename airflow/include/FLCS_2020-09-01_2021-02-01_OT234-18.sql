@@ -1,7 +1,7 @@
 
 /*
 Obtener los datos de las pesonas anotadas en entre las fechas 01/9/2020 al 01/02/2021 para las siguientes facultades:
-- Facultad Latinoamericana De Ciencias Sociales
+- Facultad Latinoamericana De Ciencias Sociales 
 */
 
 SELECT universities AS university,
