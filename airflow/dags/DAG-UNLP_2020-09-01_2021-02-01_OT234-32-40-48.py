@@ -4,7 +4,13 @@ from airflow.operators.dummy import DummyOperator
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.operators.python import PythonOperator
 import pandas as pd
-import logging
+import logging,os, sys
+try:
+    import data_transformation_functions as tf
+except ModuleNotFoundError:
+    sys.path.append(os.path.join('airflow/plugins/'))
+    import data_transformation_functions as tf
+
 # from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 # Logging configuration
@@ -68,10 +74,7 @@ def transform_extrated_data():
         PROCESSED_DATA_PATH = 'airflow/files/dataset/'
     """
     raw_data = pd.read_csv(RAW_DATA_PATH + 'UNLP_raw_data.csv', index_col='Unnamed: 0')
-    pass
-    # TO DO data transformation
-    pass
-    dataset = raw_data
+    dataset = tf.transform_OT234_72(raw_data)
     try:
         dataset.to_csv(PROCESSED_DATA_PATH + 'UNLP_dataset.csv')
         logger.debug(f'Dataset succesfully saved in {PROCESSED_DATA_PATH}.')
