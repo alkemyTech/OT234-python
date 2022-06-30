@@ -3,13 +3,20 @@ from datetime import datetime, timedelta
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.operators.python import PythonOperator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
+from pathlib  import Path
 import pandas as pd
-import logging,os, sys
-try:
-    import data_transformation_functions as tf
-except ModuleNotFoundError:
-    sys.path.append(os.path.join('airflow/plugins/'))
-    import data_transformation_functions as tf
+import logging
+import data_transformation_functions as tf
+
+# Contstant variables
+CONN_ID = 'alkemy_db'
+TABLE = 'training'
+S3_CONN_ID = 's3_alkemi'
+BUCKET_NAME = 'cohorte-junio-a192d78b'
+PARENT_PATH = Path(__file__).parent.absolute().parent
+SQL_PATH = PARENT_PATH.joinpath('include')
+FILES_PATH = PARENT_PATH.joinpath('files')
+PROCESSED_DATA_PATH = PARENT_PATH.joinpath('datasets')
 
 # Logging configuration
 # create logger
@@ -21,21 +28,12 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
-fh = logging.FileHandler('airflow/files/DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log')
+fh = logging.FileHandler(FILES_PATH.joinpath('DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log'))
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
 logger.addHandler(ch)
 logger.addHandler(fh)
-
-# Contstant variables 
-CONN_ID = 'alkemy_db'
-TABLE = 'training'
-SQL_PATH = 'airflow/include/'
-RAW_DATA_PATH = 'airflow/files/'
-PROCESSED_DATA_PATH = 'airflow/datasets/'
-S3_CONN_ID = 's3_alkemi'
-BUCKET_NAME ='cohorte-junio-a192d78b'
 
 # Functions called at the PythonOperators
 def extract_from_db():
@@ -45,11 +43,11 @@ def extract_from_db():
     The values used are:
         CONN_ID = 'alkemy_db'
         TABLE = 'training'
-        SQL_PATH = 'airflow/include/'
-        RAW_DATA_PATH = 'airflow/datasets/'
+        SQL_PATH = 'include/'
+        RAW_DATA_PATH = 'datasets/'
     '''
     # Reads query in sql file
-    with open(SQL_PATH + 'UAIn_2020-09-01_2021-02-01_OT234-16.sql', 'r') as file:
+    with open(SQL_PATH.joinpath('UAIn_2020-09-01_2021-02-01_OT234-16.sql'), 'r') as file:
         sql = file.read()
     # Connects to Postgres DB
     pg_hook = PostgresHook(
@@ -63,7 +61,7 @@ def extract_from_db():
         logger.error(f'{CONN_ID} did not work to connect to the DB.')
         return
     # Runs query and saves data
-    pd.read_sql(sql, con=conn).to_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv')
+    pd.read_sql(sql, con=conn).to_csv(FILES_PATH.joinpath('UAIn_raw_data.csv'))
     logger.debug(f'Finished data extraction task.')
 
 def transform_extrated_data():
@@ -71,12 +69,12 @@ def transform_extrated_data():
     This function transforms the extracted data.
     It saves data processed in PROCESSED_DATA_PATH as data.csv.
     The values used are:
-        PROCESSED_DATA_PATH = 'airflow/files/dataset/'
+        PROCESSED_DATA_PATH = 'files/dataset/'
     """
-    raw_data = pd.read_csv(RAW_DATA_PATH + 'UAIn_raw_data.csv', index_col='Unnamed: 0')
+    raw_data = pd.read_csv(FILES_PATH.joinpath('UAIn_raw_data.csv'), index_col='Unnamed: 0')
     dataset = tf.transform_OT234_72(raw_data)
     try: 
-        dataset.to_csv(PROCESSED_DATA_PATH + 'UAIn_dataset.csv')
+        dataset.to_csv(PROCESSED_DATA_PATH.joinpath('UAIn_dataset.csv'))
         logger.debug(f'Dataset succesfully saved in {PROCESSED_DATA_PATH}.')
     except:
         logger.error('There was an error saving the dataset.')
@@ -86,7 +84,7 @@ def load_to_s3():
     """
     This functions runs a S3Hook to upload the final dataset to S3.
     """
-    dataset = pd.read_csv('airflow/datasets/UAIn_dataset.csv', index_col='Unnamed: 0')
+    dataset = pd.read_csv(PROCESSED_DATA_PATH.joinpath('UAIn_dataset.csv'), index_col='Unnamed: 0')
     s3_hook = S3Hook(aws_conn_id=S3_CONN_ID)
     s3_hook.load_string(dataset.to_csv(index=False),
                         '{0}.csv'.format('UAIn_dataset'),
