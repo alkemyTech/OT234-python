@@ -18,16 +18,44 @@ Nota: A futuro se utilizarán los siguientes modulos
 * para procesar datos: pandas
 * para cargar los datos a S3: --pendiente investigar
 """
+    
 from datetime import datetime, timedelta
 from airflow import DAG
-# dummyOperator: oportunamente deberá ser reemplazado
 from airflow.operators.dummy import DummyOperator
+
+# These args will get passed on to each operator
+# You can override them on a per-task basis during operator initialization
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email': ['airflow@example.com'],
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5),
+    # 'queue': 'bash_queue',
+    # 'pool': 'backfill',
+    # 'priority_weight': 10,
+    # 'end_date': datetime(2016, 1, 1),
+    # 'wait_for_downstream': False,
+    # 'dag': dag,
+    # 'sla': timedelta(hours=2),
+    # 'execution_timeout': timedelta(seconds=300),
+    # 'on_failure_callback': some_function,
+    # 'on_success_callback': some_other_function,
+    # 'on_retry_callback': another_function,
+    # 'sla_miss_callback': yet_another_function,
+    # 'trigger_rule': 'all_success'
+}
 
 with DAG(
     'dag_UFlo',
+    default_args=default_args,
     description='DAG ETL para Universidad De Flores',
     schedule_interval=timedelta(hours=1),
-    start_date=datetime.today()
+    start_date=datetime.today(),
+    catchup=False,
+    tags=['example'],
 ) as dag:
 
     extract= DummyOperator(task_id='extract')
@@ -35,3 +63,5 @@ with DAG(
     load= DummyOperator(task_id='load')
 
     extract >> transform >> load
+    
+
