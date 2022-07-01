@@ -21,6 +21,7 @@ cwd = os.getcwd()
 # Import modules from paths
 sys.path.append(cwd + '/plugins/')
 from query_to_csv import queryTOcsv
+from Data_Processing_UNJu import Process_UNJu
 
 
 
@@ -57,6 +58,7 @@ default_args = {
 ############# PARAMETERS 
 sql_query = cwd + '/Include/UNJu_2020-09-01_2021-02-01_OT234-14.sql'
 raw_path = cwd + '/files/'
+datasets_path = cwd +'/datasets/'
 Univ='UNJu'
 
 #############
@@ -78,5 +80,12 @@ with DAG(
     dag=dag,
     )
     
-    Query_Jujuy
+    Process_Jujuy=PythonOperator(
+    task_id='Data-Process_Universidad-Nacional-de-Jujuy',
+    python_callable=Process_UNJu,
+    op_args={Univ, raw_path, datasets_path},
+    dag=dag,
+    )
+
+    Query_Jujuy >> Process_Jujuy
    
