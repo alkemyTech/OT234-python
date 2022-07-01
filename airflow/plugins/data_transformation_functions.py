@@ -1,4 +1,7 @@
 import pandas as pd
+from pathlib import Path
+
+PARENT_PATH = Path(__file__).parent.absolute().parent
 
 def to_lower_strip(serie: pd.Series) -> pd.Series:
     """
@@ -28,7 +31,7 @@ def transform_OT234_72(raw_data: pd.DataFrame) -> pd.DataFrame:
     """
     columns_to_lower_strip = ['university', 'career', 'first_name', 'last_name', 'location', 'email','location']
     data = raw_data.copy()
-    cp = pd.read_csv('airflow/files/codigos_postales.csv').rename(columns={'codigo_postal':'postal_code'})
+    cp = pd.read_csv(PARENT_PATH.joinpath('files').joinpath('codigos_postales.csv')).rename(columns={'codigo_postal':'postal_code'})
     merged = pd.merge(data[['postal_code', 'location']], cp, how='left', on = 'postal_code')
     mask = merged.localidad.notnull()
     data.loc[mask,'location'] = merged.localidad[mask].copy()
