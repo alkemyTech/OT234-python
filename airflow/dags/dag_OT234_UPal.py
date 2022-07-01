@@ -21,6 +21,7 @@ cwd = os.getcwd()
 # Import modules from paths
 sys.path.append(cwd + '/plugins/')
 from query_to_csv import queryTOcsv
+from Data_Processing_UPal import Process_UPal
 
 
 
@@ -57,6 +58,7 @@ default_args = {
 ############# PARAMETERS 
 sql_query = cwd + '/Include/UPal_2020-09-01_2021-02-01_OT234-14.sql'
 raw_path = cwd + '/files/'
+datasets_path = cwd +'/datasets/'
 Univ='UPal'
 
 #############
@@ -78,4 +80,11 @@ with DAG(
     dag=dag,
     )
     
-    Query_Palermo
+    Process_Palermo=PythonOperator(
+    task_id='Data-Process_Universidad-de-Palermo',
+    python_callable=Process_UPal,
+    op_args={Univ, raw_path, datasets_path},
+    dag=dag,
+    )
+    
+    Query_Palermo >> Process_Palermo
