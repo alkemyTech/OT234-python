@@ -5,6 +5,13 @@ from datetime import datetime, timedelta
 from os import environ
 import csv
 
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s-%(levelname)s-%(message)s', datefmt='%Y/%m/%d'
+)
+
 class DataSourceToCsvOperator(BaseOperator):
     """
     Extract data from the data source to CSV file
@@ -33,18 +40,24 @@ class DataSourceToCsvOperator(BaseOperator):
         self.log.info('Executing: %s', self.sql)
         self.hook = PostgresHook(postgres_conn_id=self.postgres_conn_id,
                                  schema=self.database)
-        conn = self.hook.get_conn()
+
+        try:
+            conn = self.hook.get_conn()
+            logging.debug("Server conection successful")
+        except:
+            logging.error("Failed to connect to server")
+            return
+        
         cursor = conn.cursor()
-        #self.hook.run(self.sql, self.autocommit, parameters=self.parameters)
         cursor.execute(self.sql)
         result = cursor.fetchall()
         # Write to CSV file
-        # temp_path = self.file_path + '_dump_.csv'
-        # tmp_path = self.file_path + 'dump.csv'
+
         temp_path = self.file_path
         tmp_path = self.file_path 
 
-        
+        logging.debug(temp_path,tmp_path)
+        print(temp_path,tmp_path)
 
         with open(temp_path, 'w') as fp:
             a = csv.writer(fp, quoting = csv.QUOTE_MINIMAL, delimiter = '|')
