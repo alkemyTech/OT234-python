@@ -43,7 +43,7 @@ La base de datos con la información que reunió el Ministerio de Educación se 
 
 ● Host: http://training-main.cghe7e6sfljt.us-east-1.rds.amazonaws.com
 
-● Database: Training
+● Database: training
 
 ● Credenciales:
 
