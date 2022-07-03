@@ -1,4 +1,3 @@
--- UNVM_2020-09-01_2021-02-01_OT234-12.sql
 /*COMO: Analista de datos
 QUIERO: Escribir el código de dos consultas SQL, una para cada universidad.
 PARA: Obtener los datos de las pesonas anotadas en entre las fechas 01/9/2020 al 01/02/2021 para las siguientes facultades: 
@@ -24,16 +23,9 @@ email -
 
 Aclaración: Las tablas tienen dos universidades cada una. No hace falta interpretar datos que no parezcan lógicos como fechas de nacimiento y de inscripción fuera del rango de interés. Lo importante es traer toda la información de la base de datos en las fechas especificadas y cada tarea se debe ejecutar 5 veces antes de fallar.*/
 /*
-select fecha_nacimiento,
-	to_date(fecha_nacimiento, 'dd/Mon/yy'),
-	age(to_date(fecha_nacimiento, 'dd-Mon-yy'))
-from salvador_villa_maria svm limit 3
+	Version anterior: 
+El error estaba en que no se había convertido a tipo fecha (DATE) el campo fecha_de_inscripcion(de tipo STRING).
 
-select distinct (to_date(fecha_nacimiento, 'dd-Mon-yy')) from salvador_villa_maria svm 
-order by 1 desc*/
-/*
-	Version anterior: No funcionaba correctamente porque fecha_de_inscripcion
-	no era convertido a tipo fecha.
 
 select universidad as university,
 	carrera as career,
