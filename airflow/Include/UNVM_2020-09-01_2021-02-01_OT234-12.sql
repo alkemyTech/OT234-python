@@ -31,6 +31,25 @@ from salvador_villa_maria svm limit 3
 
 select distinct (to_date(fecha_nacimiento, 'dd-Mon-yy')) from salvador_villa_maria svm 
 order by 1 desc*/
+/*
+	Version anterior: No funcionaba correctamente porque fecha_de_inscripcion
+	no era convertido a tipo fecha.
+
+select universidad as university,
+	carrera as career,
+	fecha_de_inscripcion as inscription_date,
+	SPLIT_PART(nombre ,' ',1) as first_name,
+	split_part(nombre, ' ', 2) as last_name,
+	sexo as gender,	
+	AGE(TO_DATE(fecha_nacimiento , 'dd-Mon-yy')) AS age,
+	direccion as postal_code,--cruzar con csv		
+	direccion as location,
+	email as email
+from salvador_villa_maria svm 
+where universidad ='UNIVERSIDAD_NACIONAL_DE_VILLA_MARÍA'
+AND fecha_de_inscripcion between '01-09-2020' AND '01-02-2021' --sin convertir
+*/
+
 
 
 select universidad as university,
@@ -45,6 +64,4 @@ select universidad as university,
 	email as email
 from salvador_villa_maria svm 
 where universidad ='UNIVERSIDAD_NACIONAL_DE_VILLA_MARÍA'
-AND	fecha_de_inscripcion BETWEEN '2020-09-01' AND '2021-02-01'
-
-
+AND TO_DATE( fecha_de_inscripcion, 'dd-Mon-yy') between '01-09-2020' AND '01-02-2021'
