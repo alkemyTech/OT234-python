@@ -7,12 +7,12 @@ from pathlib import Path
 
 FILE_PATH = Path(__file__).parent.absolute().parent
 
-
 universitties = ['UAIn', 'UNLP']
 args = ['sql_name','raw_data_name', 'dataset_name']
 files_names = ['_2020-09-01_2021-02-01_OT234-16.sql', '_raw_data.csv', '_dataset.csv']
 kwargs = [{},{}]
 
+# This loop sets up all args needed for each PythonOperator
 for n, name in enumerate(universitties):
     for m, arg in enumerate(args):
         kwargs[n][arg] = name + files_names[m] 
@@ -33,7 +33,7 @@ dag_factory.clean_dags(globals())
 dags ={}
 for n, name in enumerate(universitties):
     dags['DAG_' + name] = DAG(dag_id='DAG_' + name, default_args=dag_factory.get_default_config(), start_date=datetime(2022, 6, 18))
-    # Creating Tasks
+    # Tasks
     extract_data = PythonOperator(
         task_id='extract_data',
         python_callable=extract_from_db,
@@ -52,7 +52,7 @@ for n, name in enumerate(universitties):
         op_kwargs=kwargs[n],
         dag = dags['DAG_' + name]
         )
-    
+    # Dependencies
     extract_data >> transform_data >> load_data
 
 dag_factory.register_dags(dags, globals=globals())

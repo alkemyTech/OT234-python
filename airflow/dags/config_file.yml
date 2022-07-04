@@ -1,27 +1,24 @@
-dag_factory_query:
+dag_factory_univ:
   default_args:
-    owner: 'example_owner'
-    start_date: 2022-03-07
-    retries: 1
-    retry_delay_sec: 300
+    owner: 'airflow'
+    start_date: 2022-06-18
+    retries: 5
+    retry_delay_minutes: 10
   schedule_interval: '0 3 * * *'
   concurrency: 1
-  max_active_runs: 1
-  dagrun_timeout_sec: 60
-  default_view: 'tree'  # or 'graph', 'duration', 'gantt', 'landing_times'
-  orientation: 'LR'  # or 'TB', 'RL', 'BT'
+  max_active_runs: 3
   tasks:
-    task_1:
+    extract:
       operator: airflow.operators.python_operator.PythonOperator
       python_callable_name: extract_from_db
-      python_callable_file: /Users/imachado/Documentos/Desarrollo/Alkemy/OT234-python/airflow/plugins/DAGs_functions.py
-    task_2:
+      python_callable_file: plugins/DAGs_functions.py
+    transform:
       operator: airflow.operators.python_operator.PythonOperator
       python_callable_name: transform_extrated_data
-      python_callable_file: /Users/imachado/Documentos/Desarrollo/Alkemy/OT234-python/airflow/plugins/DAGs_functions.py
-      dependencies: [task_1]
+      python_callable_file: plugins/DAGs_functions.py
+      dependencies: [extract]
     task_3:
       operator: airflow.operators.python_operator.PythonOperator
       python_callable_name: load_to_s3
-      python_callable_file: /Users/imachado/Documentos/Desarrollo/Alkemy/OT234-python/airflow/plugins/DAGs_functions.py
-      dependencies: [task_2]
+      python_callable_file: plugins/DAGs_functions.py
+      dependencies: [transform]
