@@ -1,4 +1,4 @@
 dag_id: 'UAIn'
-schedule_interval: '@daily'
-catchup: True
-input: X
+sql_name: 'UAIn_2020-09-01_2021-02-01_OT234-16.sql'
+raw_data_name: 'UAIn_raw_data.csv'
+dataset_name: 'UAIn_dataset.csv'
