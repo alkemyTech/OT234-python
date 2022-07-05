@@ -1,0 +1,4 @@
+dag_id: 'UAIn'
+schedule_interval: '@daily'
+catchup: True
+input: X
