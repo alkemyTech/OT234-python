@@ -5,7 +5,7 @@ Facultad Latinoamericana De Ciencias Sociales
 """
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.operators.dummy import DummyOperator
 
 #Se usaran en un futuro: 
 # postgres operator para la extraccion de datos
@@ -19,8 +19,8 @@ with DAG(
     start_date=datetime.today()
 ) as dag:
 
-    extract= EmptyOperator(task_id='extract')
-    transform= EmptyOperator(task_id='transform')
-    load= EmptyOperator(task_id='load')
+    extract= DummyOperator(task_id='extract')
+    transform= DummyOperator(task_id='transform')
+    load= DummyOperator(task_id='load')
 
     extract >> transform >> load
