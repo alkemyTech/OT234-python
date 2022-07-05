@@ -5,10 +5,6 @@ from datetime import datetime, timedelta
 from os import environ
 import csv
 
-
-
-
-
 class DataSourceToCsvOperator(BaseOperator):
     """
     Extract data from the data source to CSV file
@@ -18,7 +14,6 @@ class DataSourceToCsvOperator(BaseOperator):
     template_ext = ('.sql',)
     ui_color = '#ededed'
 
-    
     def __init__(
             self, sql,
             postgres_conn_id='postgres_default', autocommit=False,
@@ -46,10 +41,8 @@ class DataSourceToCsvOperator(BaseOperator):
         # Write to CSV file
         # temp_path = self.file_path + '_dump_.csv'
         # tmp_path = self.file_path + 'dump.csv'
-
         temp_path = self.file_path
         tmp_path = self.file_path 
-
         print(temp_path,tmp_path)
 
         with open(temp_path, 'w') as fp:
