@@ -28,8 +28,9 @@ for n, name in enumerate(universitties):
 # ]
 
 dag_factory = dagfactory.DagFactory(FILE_PATH.joinpath('dags').joinpath('config_file.yml'))
-dag_factory.clean_dags(globals())
+#dag_factory.clean_dags(globals())
 
+# Creating Dags dictornaries to be loaded in globals() according to each university
 dags ={}
 for n, name in enumerate(universitties):
     dags['DAG_' + name] = DAG(dag_id='DAG_' + name, default_args=dag_factory.get_default_config(), start_date=datetime(2022, 6, 18))
@@ -55,4 +56,5 @@ for n, name in enumerate(universitties):
     # Dependencies
     extract_data >> transform_data >> load_data
 
+# registering dags on globals()
 dag_factory.register_dags(dags, globals=globals())

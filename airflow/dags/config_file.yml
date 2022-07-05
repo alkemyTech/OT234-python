@@ -10,15 +10,9 @@ dag_factory_univ:
   tasks:
     extract:
       operator: airflow.operators.python_operator.PythonOperator
-      python_callable_name: extract_from_db
-      python_callable_file: plugins/DAGs_functions.py
     transform:
       operator: airflow.operators.python_operator.PythonOperator
-      python_callable_name: transform_extrated_data
-      python_callable_file: plugins/DAGs_functions.py
       dependencies: [extract]
     task_3:
       operator: airflow.operators.python_operator.PythonOperator
-      python_callable_name: load_to_s3
-      python_callable_file: plugins/DAGs_functions.py
       dependencies: [transform]
