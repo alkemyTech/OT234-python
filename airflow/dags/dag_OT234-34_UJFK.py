@@ -26,7 +26,7 @@ with DAG(
     description='DAG ETL para Universidad J. F. Kennedy',
     schedule_interval=timedelta(hours=1),
     start_date=datetime.today(),
-    default_args=default_args,
+    default_args=default_args
 ) as dag:
 
     extract= DummyOperator(task_id='extract')
