@@ -6,14 +6,19 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.dummy import DummyOperator
 
-<<<<<<< HEAD
-
-=======
->>>>>>> main
 #Se usaran en un futuro: 
 # postgres operator para la extraccion de datos
 # python operator para la transformacion
 # python operator para la carga de datos
+
+default_args={
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 5,
+    'retry_delay': timedelta(minutes=10)
+}
 
 with DAG(
     'dag_OT234-34_UJFK',
