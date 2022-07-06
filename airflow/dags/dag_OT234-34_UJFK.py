@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.dummy import DummyOperator
 
+
 #Se usaran en un futuro: 
 # postgres operator para la extraccion de datos
 # python operator para la transformacion
