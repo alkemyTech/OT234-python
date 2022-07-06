@@ -1,0 +1,6 @@
+script_name: Data_Processing_UNJu
+script_function_name: Process_UNJu
+logger_descriptor_name: 'Universidad de Palermo'
+query_sql: '/Include/UNJu_2020-09-01_2021-02-01_OT234-14.sql'
+University_id: 'UNJu'
+dag_id: 'dag_OT234_UNJu'
