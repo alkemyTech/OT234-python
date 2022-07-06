@@ -12,8 +12,6 @@ from airflow.operators.dummy import DummyOperator
 # python operator para la transformacion
 # python operator para la carga de datos                  
 
-<<<<<<< HEAD
-=======
 default_args={
     'owner': 'airflow',
     'depends_on_past': False,
@@ -23,17 +21,12 @@ default_args={
     'retry_delay': timedelta(minutes=10)
 }
 
->>>>>>> OT234-42
 with DAG(
     'dag_OT234-34_FLCS',
     description='DAG ETL para Facultad Latinoamericana De Ciencias Sociales',
     schedule_interval=timedelta(hours=1),
-<<<<<<< HEAD
-    start_date=datetime.today()
-=======
     start_date=datetime.today(),
     default_args=default_args
->>>>>>> OT234-42
 ) as dag:
 
     extract= DummyOperator(task_id='extract')
