@@ -22,9 +22,23 @@ Nota: A futuro se utilizarán los siguientes modulos
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.dummy import DummyOperator
+import logging
+
+## Realizar un log al empezar cada DAG con el nombre del logger
+## Formato del log: %Y-%m-%d - nombre_logger - mensaje
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d')
+
+def extract():
+    logging.info('Extract process started.')
+
+def trasnform():
+    logging.info('Transform process started.')
+
+def load():
+    logging.info('Load process started.')
+
 
 # These args will get passed on to each operator
-# You can override them on a per-task basis during operator initialization
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -32,20 +46,7 @@ default_args = {
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 3,
-    'retry_delay': timedelta(minutes=5),
-    # 'queue': 'bash_queue',
-    # 'pool': 'backfill',
-    # 'priority_weight': 10,
-    # 'end_date': datetime(2016, 1, 1),
-    # 'wait_for_downstream': False,
-    # 'dag': dag,
-    # 'sla': timedelta(hours=2),
-    # 'execution_timeout': timedelta(seconds=300),
-    # 'on_failure_callback': some_function,
-    # 'on_success_callback': some_other_function,
-    # 'on_retry_callback': another_function,
-    # 'sla_miss_callback': yet_another_function,
-    # 'trigger_rule': 'all_success'
+    'retry_delay': timedelta(minutes=5)
 }
 
 with DAG(
