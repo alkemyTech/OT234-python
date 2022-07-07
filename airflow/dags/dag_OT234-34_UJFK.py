@@ -15,11 +15,21 @@ from airflow.operators.dummy import DummyOperator
 # python operator para la transformacion
 # python operator para la carga de datos
 
+default_args={
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 5,
+    'retry_delay': timedelta(minutes=10)
+}
+
 with DAG(
     'dag_OT234-34_UJFK',
     description='DAG ETL para Universidad J. F. Kennedy',
     schedule_interval=timedelta(hours=1),
-    start_date=datetime.today()
+    start_date=datetime.today(),
+    default_args=default_args
 ) as dag:
 
     extract= DummyOperator(task_id='extract')
