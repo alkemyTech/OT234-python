@@ -1,13 +1,10 @@
-# DAG for University processing - Group C
-# Universidad de Palermo
-# Start airflow scheduler in OT234-python/airflow directory
+# DAG Template for University processing - Group C
+# Universidad de Palermo & Universidad Nacional de Jujuy
+# Jinja2 Template
 
 from airflow import DAG
 from datetime import timedelta, datetime
-import pandas as pd
-import psycopg2
 from airflow.operators.python import PythonOperator
-from airflow.operators.dummy import DummyOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from sqlalchemy import true
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
@@ -23,11 +20,11 @@ cwd = os.getcwd()
 # Import modules from paths
 sys.path.append(cwd + '/plugins/')
 from query_to_csv import queryTOcsv
-from Data_Processing_UPal import Process_UPal
+from {{script_name}} import {{script_function_name}} 
 
 
 #############Create logger
-logger = logging.getLogger('Universidad de Palermo')
+logger = logging.getLogger( {{logger_name}} )
 logger.setLevel(logging.DEBUG)
 
 # create console handler and set level to debug
@@ -56,11 +53,11 @@ default_args = {
 }
 #############
 
-############# PARAMETERS 
-SQLquery = cwd + '/Include/UPal_2020-09-01_2021-02-01_OT234-14.sql'
-pathTOraw = cwd + '/files/'
+############# PARAMETERS             
+SQLquery = cwd + {{query_sql}}   
+pathTOraw = cwd + '/files/'      
 pathTOdatasets = cwd +'/datasets/'
-University='UPal'
+University = {{University_id}}
 
 #############
 
@@ -78,8 +75,8 @@ def uploadS3(Univ, datasets_path):
 
 
 with DAG(
-    dag_id='dag_OT234_UPal',
-    description='Dag procesamiento Universidad de Palermo',
+    dag_id={{dag_id}},
+    description='Dag ETL University',
     default_args=default_args,
     schedule_interval=timedelta(hours=1),
     start_date=datetime(2022,6,27),
@@ -88,25 +85,25 @@ with DAG(
 
 )  as dag:
 
-    Query_Palermo=PythonOperator(
-    task_id='Query.to.csv_UPal',
+    Query=PythonOperator(
+    task_id='Query.to.csv',
     python_callable=queryTOcsv,
     op_kwargs={'Univ' : University, 'raw_path' : pathTOraw, 'sql_query' : SQLquery},
     dag=dag,
     )
     
-    Process_Palermo=PythonOperator(
-    task_id='Data-Process_UPal',
-    python_callable=Process_UPal,
+    Process=PythonOperator(
+    task_id='Data-Process',
+    python_callable={{script_function_name}}, 
     op_kwargs={'Univ' : University, 'raw_path' : pathTOraw, 'datasets_path' : pathTOdatasets},
     dag=dag,
     )
     
-    Upload_Palermo=PythonOperator(
+    Upload=PythonOperator(
     task_id='S3-Data-Upload_UPal',
     python_callable=uploadS3,
     op_kwargs={'Univ' : University, 'datasets_path' : pathTOdatasets},
     dag=dag,
     )
 
-    Query_Palermo >> Process_Palermo >> Upload_Palermo
+    Query >> Process >> Upload
