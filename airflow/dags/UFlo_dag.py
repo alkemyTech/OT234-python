@@ -18,16 +18,31 @@ Nota: A futuro se utilizarán los siguientes modulos
 * para procesar datos: pandas
 * para cargar los datos a S3: --pendiente investigar
 """
+    
 from datetime import datetime, timedelta
 from airflow import DAG
-# dummyOperator: oportunamente deberá ser reemplazado
 from airflow.operators.dummy import DummyOperator
+
+# These args will get passed on to each operator
+# You can override them on a per-task basis during operator initialization
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email': ['airflow@example.com'],
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5)
+}
 
 with DAG(
     'dag_UFlo',
+    default_args=default_args,
     description='DAG ETL para Universidad De Flores',
     schedule_interval=timedelta(hours=1),
-    start_date=datetime.today()
+    start_date=datetime.today(),
+    catchup=False,
+    tags=['example'],
 ) as dag:
 
     extract= DummyOperator(task_id='extract')
@@ -35,3 +50,5 @@ with DAG(
     load= DummyOperator(task_id='load')
 
     extract >> transform >> load
+    
+
