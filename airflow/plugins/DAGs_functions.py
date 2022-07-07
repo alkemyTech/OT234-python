@@ -25,7 +25,8 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s', '%Y-%m-%d'
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
-fh = logging.FileHandler(FILES_PATH.joinpath('DAG-UAIn_2020-09-01_2021-02-01_OT234-32-40-48.log'))
+fh = logging.FileHandler(FILES_PATH.joinpath('DAG.log'))
+
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 # add ch and fh to logger
@@ -87,7 +88,8 @@ def load_to_s3(**kwargs):
                         bucket_name=BUCKET_NAME,
                         replace=True)
     try:
-        assert s3_hook.get_key('UAIn_dataset.csv',BUCKET_NAME).key == kwargs['dataset_name']
+        assert s3_hook.get_key(kwargs['dataset_name'],BUCKET_NAME).key == kwargs['dataset_name']
+
         logger.debug('The file was succesfully saved in s3.')
     except AssertionError:
         logger.error("The file couldn't be upload.")
