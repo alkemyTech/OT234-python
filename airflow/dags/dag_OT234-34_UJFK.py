@@ -54,7 +54,7 @@ with DAG(
     default_args=default_args,
     template_searchpath='/home/tomasreuque/Desktop/OT234-python/airflow/include',
     catchup=False
-    
+
 ) as dag:
 
     extract= DummyOperator(task_id='extract')
