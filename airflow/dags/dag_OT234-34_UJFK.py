@@ -4,8 +4,12 @@ ni procesamiento para la universidad Universidad J. F. Kennedy
 """
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
+from airflow.operators.dummy import DummyOperator
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> main
 #Se usaran en un futuro: 
 # postgres operator para la extraccion de datos
 # python operator para la transformacion
@@ -18,8 +22,8 @@ with DAG(
     start_date=datetime.today()
 ) as dag:
 
-    extract= EmptyOperator(task_id='extract')
-    transform= EmptyOperator(task_id='transform')
-    load= EmptyOperator(task_id='load')
+    extract= DummyOperator(task_id='extract')
+    transform= DummyOperator(task_id='transform')
+    load= DummyOperator(task_id='load')
 
     extract >> transform >> load
