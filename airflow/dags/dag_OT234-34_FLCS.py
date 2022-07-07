@@ -53,7 +53,7 @@ with DAG(
     schedule_interval=timedelta(hours=1),
     start_date=datetime.today(),
     default_args=default_args,
-    template_searchpath='/home/tomasreuque/Desktop/OT234-python/airflow/dags/dag_OT234-34_FLCS.py',
+    template_searchpath='/home/tomasreuque/Desktop/OT234-python/airflow/include',
     catchup=False
 ) as dag:
 
