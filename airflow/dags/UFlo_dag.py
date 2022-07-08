@@ -1,8 +1,8 @@
-
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.dummy import DummyOperator
 import logging
+from airflow.providers.postgres.operators.postgres import PostgresOperator as PO
 
 ## Realizar un log al empezar cada DAG con el nombre del logger
 ## Formato del log: %Y-%m-%d - nombre_logger - mensaje
@@ -16,7 +16,6 @@ def trasnform():
 
 def load():
     logging.info('Load process started.')
-
 
 # These args will get passed on to each operator
 default_args = {
@@ -39,8 +38,11 @@ with DAG(
     tags=['example']
 
 ) as dag:
-
-    extract= DummyOperator(task_id='extract')
+    extract= PO(
+        task_id='extract',
+        postgres_conn_id="postgres_default",
+        sql="../include/UFlo_2020-09-01_2021-02-01_OT234-12.sql"
+        )
     transform= DummyOperator(task_id='transform')
     load= DummyOperator(task_id='load')
 
