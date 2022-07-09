@@ -69,7 +69,7 @@ with DAG(
     )
 
 
-UNTF_query >> UNTF_transform_to_txt
+UNTF_query >> UNTF_transform_to_txt >> UNTF_aws_load
 
     
    

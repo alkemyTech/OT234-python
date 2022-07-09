@@ -29,14 +29,14 @@ def BaseProcessing(df):
     df.university = df.university.str.replace('_',' ')
     df.career = df.career.str.replace('_',' ')
     df.inscription_date = df.inscription_date.str.replace('/','-')
-    df.first_name = df.first_name.str.replace(' ','').str.replace('-','').str.upper()
-    df.last_name = df.last_name.str.replace(' ','').str.replace('-','').str.upper()
+    df.first_name = df.names.str.replace(' ','').str.replace('-','').str.lower()
+    df.last_name = df.names.str.replace(' ','').str.replace('-','').str.upper()
     df.gender = df.gender.str.replace('m','male').replace('f','female')
-    print(df.age.head())
-    df.age = df.age.apply(lambda x: 0 if x.split(' ')[0] == "0:00:00" else int(x.split(' ')[0])//365).astype(int)
-    df.age = df.age.apply(lambda x: x if x > 0 else x + 100)
-    if df.postal_code.dtypes != 'int':
-        df.postal_code = df.postal_code.apply(lambda x: int(x.split(' ')[-1]))
+    # print(df.age.head())
+    #df.age = df.age.apply(lambda x: 0 if x.split(' ')[0] == "0:00:00" else int(x.split(' ')[0])//365).astype(int)
+    #df.age = df.age.apply(lambda x: x if x > 0 else x + 100)
+    # if df.postal_code.dtypes != 'int':
+    #     df.postal_code = df.postal_code.apply(lambda x: int(x.split(' ')[-1]))
     
     df.email = df.email.str.replace(' ','').str.replace('-','').str.lower()
     return df
@@ -47,7 +47,7 @@ def postalCode(df):
     return df
 
 def exportToTxt(df,path):
-    print(path)
+    # print(path)
     np.savetxt(path, df.values, fmt='%s',delimiter=',')
 
 def cleaningPipeline(**kwargs):
@@ -65,11 +65,10 @@ def cleaningPipeline(**kwargs):
     exportToTxt(df,output_path)
 
 def loadAws(**kwargs):
-    print('hola')
     file_path = kwargs['file_path']
     bucket = kwargs['bucket']
     file_name = file_path.split('/')[-1]
-    print(file_name)
+    # print(file_name)
     data = open(file_path, 'rb')
 
 

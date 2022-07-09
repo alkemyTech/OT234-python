@@ -2,11 +2,10 @@ SELECT
 	university,
 	career,
 	inscription_date,
-    SPLIT_PART(nombre ,' ',1) as first_name,
-    SPLIT_PART(nombre ,' ',2) as last_name,
+    nombre as names,
     sexo as gender,
-    AGE(TO_DATE(birth_date,'yyyy/mm/dd')) as age,
-    REVERSE(SPLIT_PART(REVERSE(direccion),'-',1))  as postal_code,
+    birth_date as birth_date,
+    direccion as postal_code,
     location,
     email
 FROM 

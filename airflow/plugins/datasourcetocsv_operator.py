@@ -57,7 +57,7 @@ class DataSourceToCsvOperator(BaseOperator):
         tmp_path = self.file_path 
 
         logging.debug(temp_path,tmp_path)
-        print(temp_path,tmp_path)
+        # print(temp_path,tmp_path)
 
         with open(temp_path, 'w') as fp:
             a = csv.writer(fp, quoting = csv.QUOTE_MINIMAL, delimiter = '|')
