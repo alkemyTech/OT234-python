@@ -1,5 +1,6 @@
-# DAG sin consultas ni procesamiento para el grupo de universidades C
+# DAG for University processing - Group C
 # Universidad Nacional de Jujuy
+# Start airflow scheduler in OT234-python/airflow directory
 
 from airflow import DAG
 from datetime import timedelta, datetime
@@ -8,6 +9,7 @@ import psycopg2
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
+from sqlalchemy import true
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.hooks.postgres_hook import PostgresHook
 import logging
@@ -24,8 +26,7 @@ from query_to_csv import queryTOcsv
 from Data_Processing_UNJu import Process_UNJu
 
 
-
-############# Create logger
+############ Create logger
 logger = logging.getLogger('Universidad Nacional de Jujuy')
 logger.setLevel(logging.DEBUG)
 
@@ -56,12 +57,25 @@ default_args = {
 #############
 
 ############# PARAMETERS 
-sql_query = cwd + '/Include/UNJu_2020-09-01_2021-02-01_OT234-14.sql'
-raw_path = cwd + '/files/'
-datasets_path = cwd +'/datasets/'
-Univ='UNJu'
+SQLquery = cwd + '/Include/UNJu_2020-09-01_2021-02-01_OT234-14.sql'
+pathTOraw = cwd + '/files/'
+pathTOdatasets = cwd +'/datasets/'
+University='UNJu'
 
 #############
+
+
+def uploadS3(Univ, datasets_path):
+
+    S3_CONN_ID = 'S3-OT234'
+    BUCKET = 'cohorte-junio-a192d78b'
+    s3_hook = S3Hook(aws_conn_id=S3_CONN_ID)
+    s3_key = 'AKIAS2JWQJCDAOV62MGH'
+
+    txt_path = datasets_path + Univ + '_dataset.txt'
+    #File upload
+    s3_hook.load_file(txt_path, key=s3_key, bucket_name=BUCKET, replace=true)
+
 
 with DAG(
     dag_id='dag_OT234_UNJu',
@@ -73,19 +87,26 @@ with DAG(
     catchup=False
 
 )  as dag:
+    
     Query_Jujuy=PythonOperator(
-    task_id='Query_Universidad-Nacional-de-Jujuy',
+    task_id='Query.to.csv_UNJu',
     python_callable=queryTOcsv,
-    op_args={Univ, raw_path, sql_query},
+    op_kwargs={'Univ' : University, 'raw_path' : pathTOraw, 'sql_query' : SQLquery},
     dag=dag,
     )
     
     Process_Jujuy=PythonOperator(
-    task_id='Data-Process_Universidad-Nacional-de-Jujuy',
+    task_id='Data-Process_UNJu',
     python_callable=Process_UNJu,
-    op_args={Univ, raw_path, datasets_path},
+    op_kwargs={'Univ' : University, 'raw_path' : pathTOraw, 'datasets_path' : pathTOdatasets},
     dag=dag,
     )
 
-    Query_Jujuy >> Process_Jujuy
-   
+    Upload_Jujuy=PythonOperator(
+    task_id='S3-Data-Upload_UNJu',
+    python_callable=uploadS3,
+    op_kwargs={'Univ' : University, 'datasets_path' : pathTOdatasets},
+    dag=dag,
+    )
+    
+    Query_Jujuy >> Process_Jujuy >> Upload_Jujuy

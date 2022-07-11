@@ -6,6 +6,7 @@ from airflow.operators.python import PythonOperator
 import logging
 import pandas as pd
 
+
 CONN_ID = 'alkemy_db'
 TABLE = 'training'
 SQL_PATH = 'include/'
@@ -60,6 +61,15 @@ default_args={
     'retry_delay': timedelta(minutes=10)
 }
 
+default_args={
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 5,
+    'retry_delay': timedelta(minutes=10)
+}
+
 with DAG(
     #DAG ETL para Facultad Latinoamericana De Ciencias Sociales
     dag_id='dag_OT234-34_FLCS',
@@ -79,5 +89,4 @@ with DAG(
         transformar= EmptyOperator(task_id='transformar')
 
         cargar= EmptyOperator(task_id='cargar')
-
         extraer >> transformar >> cargar

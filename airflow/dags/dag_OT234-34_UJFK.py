@@ -62,6 +62,15 @@ default_args={
     'retry_delay': timedelta(minutes=10)
 }
 
+default_args={
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 5,
+    'retry_delay': timedelta(minutes=10)
+}
+
 with DAG(
     #DAG ETL para Universidad J. F. Kennedy
     dag_id='dag_OT234-34_UJFK',
@@ -81,5 +90,4 @@ with DAG(
         transform= EmptyOperator(task_id='transform')
 
         load= EmptyOperator(task_id='load')
-
         extract >> transform >> load
