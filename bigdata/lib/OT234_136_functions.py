@@ -10,7 +10,7 @@ def get_duration(func):
         print('Took ', time.total_seconds(), ' s')
     return wrapper
 
-# Enunciado 1
+# Functions used to solve first request
 
 def get_dates(data):
     creation_date = datetime.strptime(data.attrib['CreationDate'], '%Y-%m-%dT%H:%M:%S.%f').date().strftime("%d/%m/%Y")
@@ -25,7 +25,7 @@ def mapper_1(data):
     dates = map(get_dates, data)
     return dates
 
-# Enunciado 2
+# Functions used to solve second request
 
 def get_answer_visit(data):
     try: 
@@ -50,7 +50,7 @@ def mapper_2(data):
     ratio = list(map(get_ratio, resp_visit))
     return ratio
 
-# Enunciado 3
+# Functions used to solve third request
 
 def get_creation_date(data):
     date = datetime.strptime(data.attrib['CreationDate'], '%Y-%m-%dT%H:%M:%S.%f')
