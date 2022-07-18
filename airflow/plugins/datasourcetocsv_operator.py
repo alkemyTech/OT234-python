@@ -41,6 +41,7 @@ class DataSourceToCsvOperator(BaseOperator):
         # Write to CSV file
         # temp_path = self.file_path + '_dump_.csv'
         # tmp_path = self.file_path + 'dump.csv'
+
         temp_path = self.file_path
         tmp_path = self.file_path 
         print(temp_path,tmp_path)

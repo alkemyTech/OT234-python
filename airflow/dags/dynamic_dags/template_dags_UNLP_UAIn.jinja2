@@ -1,0 +1,49 @@
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from DAGs_functions import extract_from_db, transform_extrated_data, load_to_s3
+from datetime import datetime, timedelta
+
+# Default DAG args
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 5,
+    'retry_delay': timedelta(minutes=10)
+}
+
+kwargs = {
+    'sql_name': "{{sql_name}}",
+    'raw_data_name': "{{raw_data_name}}",
+    'dataset_name': "{{dataset_name}}"
+    }
+
+with DAG(
+    # DAG Universidad Abierta Interamericana
+    dag_id="{{dag_id}}-dag",
+    start_date=datetime(2022, 6, 18),
+    max_active_runs=3,
+    schedule_interval='@daily',
+    default_args=default_args,
+    catchup=False
+    ) as dag:
+
+    # Tasks
+    extract_data = PythonOperator(
+        task_id='extract_data',
+        python_callable=extract_from_db,
+        op_kwargs=kwargs
+        )
+    transform_data = PythonOperator(
+        task_id='transform_data',
+        python_callable=transform_extrated_data,
+        op_kwargs=kwargs
+        )
+    load_data = PythonOperator(
+        task_id='load_data',
+        python_callable=load_to_s3,
+        op_kwargs=kwargs
+        )
+    # Dependencies
+    extract_data >> transform_data >> load_data
