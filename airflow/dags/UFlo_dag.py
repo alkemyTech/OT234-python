@@ -1,4 +1,11 @@
 
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.dummy import DummyOperator
+from airflow.operators.python_operator import PythonOperator
+import logging
+from airflow.providers.postgres.operators.postgres import PostgresOperator as PO
+
 """
 Descripción
 COMO: Analista de datos
@@ -19,12 +26,6 @@ Nota: A futuro se utilizarán los siguientes modulos
 * para procesar datos: pandas
 * para cargar los datos a S3: --pendiente investigar
 """
-    
-from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.dummy import DummyOperator
-import logging
-from airflow.providers.postgres.operators.postgres import PostgresOperator as PO
 
 ## Realizar un log al empezar cada DAG con el nombre del logger
 ## Formato del log: %Y-%m-%d - nombre_logger - mensaje
@@ -33,7 +34,8 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt=
 def extract():
     logging.info('Extract process started.')
 
-def trasnform():
+def transform():
+
     logging.info('Transform process started.')
 
 def load():
@@ -70,19 +72,18 @@ with DAG(
     description='DAG ETL para Universidad De Flores',
     schedule_interval=timedelta(hours=1),
     start_date=datetime.today(),
-    catchup=False,
-    tags=['example']
-
-
+    catchup=False
 ) as dag:
     extract= PO(
         task_id='extract',
         postgres_conn_id="postgres_default",
         sql="../include/UFlo_2020-09-01_2021-02-01_OT234-12.sql"
         )
-    transform= DummyOperator(task_id='transform')
+    
+    transform= PythonOperator(task_id='transform',
+    python_callable=transform)
+
+
     load= DummyOperator(task_id='load')
 
     extract >> transform >> load
-    
-
