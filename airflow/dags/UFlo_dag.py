@@ -1,3 +1,4 @@
+
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.dummy import DummyOperator
@@ -29,15 +30,25 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
+# These args will get passed on to each operator
+# You can override them on a per-task basis during operator initialization
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email': ['airflow@example.com'],
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5)
+}
+
 with DAG(
     'dag_UFlo',
     default_args=default_args,
     description='DAG ETL para Universidad De Flores',
     schedule_interval=timedelta(hours=1),
     start_date=datetime.today(),
-    catchup=False,
-    tags=['example']
-
+    catchup=False
 ) as dag:
     extract= PO(
         task_id='extract',
@@ -51,4 +62,3 @@ with DAG(
     load= DummyOperator(task_id='load')
 
     extract >> transform >> load
-

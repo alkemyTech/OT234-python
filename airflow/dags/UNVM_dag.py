@@ -30,6 +30,18 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
+# These args will get passed on to each operator
+# You can override them on a per-task basis during operator initialization
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email': ['airflow@example.com'],
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5)
+}
+
 with DAG(
     'dag_UNVM',
     default_args=default_args,
@@ -49,3 +61,4 @@ with DAG(
     load = DummyOperator(task_id='load')
 
     extract >> transform >> load
+    
