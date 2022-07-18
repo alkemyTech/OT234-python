@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.dummy import DummyOperator
+from airflow.operators.python_operator import PythonOperator
 import logging
 from airflow.providers.postgres.operators.postgres import PostgresOperator as PO
 
@@ -11,7 +12,7 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt=
 def extract():
     logging.info('Extract process started.')
 
-def trasnform():
+def transform():
     logging.info('Transform process started.')
 
 def load():
@@ -43,7 +44,11 @@ with DAG(
         postgres_conn_id="postgres_default",
         sql="../include/UFlo_2020-09-01_2021-02-01_OT234-12.sql"
         )
-    transform= DummyOperator(task_id='transform')
+    
+    transform= PythonOperator(task_id='transform',
+    python_callable=transform)
+
     load= DummyOperator(task_id='load')
 
     extract >> transform >> load
+
