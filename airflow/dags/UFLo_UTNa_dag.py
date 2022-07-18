@@ -131,6 +131,7 @@ with DAG(
         op_kwargs={'input_path': csv_UFLo_dir, 'postal_fix': 'True', 'output_path' : txt_UFLo_dir},
         )
 
+
     UFLo_aws_load = PythonOperator(
         task_id='UFLo_aws_load',
         python_callable=loadAws,
@@ -139,6 +140,7 @@ with DAG(
             'file_path': txt_UFLo_dir,
         }
     )
+
 
     UTNa_query = DataSourceToCsvOperator(
         task_id='UTNa_query',
