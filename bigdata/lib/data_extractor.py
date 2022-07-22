@@ -1,9 +1,9 @@
 import xml.etree.ElementTree as ET
-from inspect import getmembers, isclass, isfunction
-from functools import reduce
-# importing the datetime package  
+from functools import reduce  
 import datetime  
-  
+from pathlib import Path
+path = str((Path(__file__).parent.absolute()).parent)
+
 def getActivityTime(row):
     try:
         accepted = row[1].attrib['AnswerCount']
@@ -19,13 +19,13 @@ def dateToDays(lista):
     Using the timestamp() function to convert datetime into epoch time.
     86400 is the amount of seconds on a day
     """  
-    return [lista[0],(datetime.datetime(int(lista[2][0]),int(lista[2][1]),int(lista[2][2])).timestamp() -
-            datetime.datetime(int(lista[1][0]),int(lista[1][1]),int(lista[1][2])).timestamp()) / 86400]
+    return [(datetime.datetime(int(lista[2][0]),int(lista[2][1]),int(lista[2][2])).timestamp() -
+            datetime.datetime(int(lista[1][0]),int(lista[1][1]),int(lista[1][2])).timestamp()) / 86400,lista[0]]
 
 def getScoreCount(row):
     try:
         accepted = row[1].attrib['AnswerCount']
-        return [row[1].attrib['AnswerCount'],row[1].attrib['Score']]
+        return [row[1].attrib['Score'],row[1].attrib['AnswerCount']]
     except:
         pass   
 
@@ -37,16 +37,16 @@ def scoreReducer (dict_1,dict_2):
 
 def scoreCountPipeline():
     lista = map(getScoreCount,ET.iterparse(
-        r"/home/jvera/gitRepos/OT234-python/bigdata/datasets/112010 Meta Stack Overflow/posts.xml")
+        path + "/datasets/posts.xml")
         )
     lista = filter(None,list(lista))
     score_amount_answers = list(lista)
-    score_amount_answers = sorted(score_amount_answers,reverse=True)[:10]
-    return score_amount_answers
+    score_amount_answers = sorted(score_amount_answers,reverse=True)
+    return score_amount_answers[:30]
 
 def topActivityTimePipeline():
     preguntas_tiempo = map(getActivityTime,ET.iterparse(
-        r"/home/jvera/gitRepos/OT234-python/bigdata/datasets/112010 Meta Stack Overflow/posts.xml")
+        path + "/datasets/posts.xml")
         )
     preguntas_tiempo = filter(None,preguntas_tiempo)
     preguntas_tiempo = map(cleanDate,preguntas_tiempo)
@@ -55,10 +55,10 @@ def topActivityTimePipeline():
     return top10_activity_time
 
 def __main__():
-    print("Top 10 (ID | Activity Time (Days)")
+    print("Top 10 (Activity Time (Days) | ID")
     print(topActivityTimePipeline())
     
-    print("Top 10 (Amount Answers | Score) ")
+    print("(Score | Amount Answers) ")
     print(scoreCountPipeline())
     
 
